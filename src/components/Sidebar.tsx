@@ -10,7 +10,8 @@ import {
   Bell,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,18 +24,19 @@ const navItems = [
   { path: '/customers', icon: Users, label: 'مشتریان' },
   { path: '/deals', icon: Briefcase, label: 'معاملات' },
   { path: '/tasks', icon: CheckSquare, label: 'وظایف' },
+  { path: '/activities', icon: Activity, label: 'فعالیت‌ها' },
   { path: '/reports', icon: BarChart3, label: 'گزارشات' },
   { path: '/settings', icon: Settings, label: 'تنظیمات' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
   return (
-    <aside className={`fixed top-0 right-0 h-full bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl transition-all duration-300 z-50 ${collapsed ? 'w-20' : 'w-64'}`}>
+    <aside className={`fixed top-0 right-0 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl transition-all duration-300 z-50 ${collapsed ? 'w-20' : 'w-64'}`}>
       {/* Logo */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-700">
+      <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
         {!collapsed && (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/30">
               C
             </div>
             <div>
@@ -44,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
           </div>
         )}
         {collapsed && (
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center font-bold text-lg mx-auto shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center font-bold text-lg mx-auto shadow-lg shadow-blue-500/30">
             C
           </div>
         )}
@@ -67,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-all duration-200 ${
                 isActive
-                  ? 'bg-blue-600/20 text-blue-400 border-r-4 border-blue-400 shadow-lg'
+                  ? 'bg-gradient-to-l from-blue-600/20 to-purple-600/20 text-blue-400 border-r-4 border-blue-400 shadow-lg'
                   : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
               } ${collapsed ? 'justify-center' : ''}`
             }
@@ -78,10 +80,31 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         ))}
       </nav>
 
+      {/* Quick Stats */}
+      {!collapsed && (
+        <div className="mx-3 mt-6 p-4 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-xl border border-slate-700/50">
+          <div className="flex items-center gap-2 mb-3">
+            <Bell size={16} className="text-amber-400" />
+            <span className="text-xs font-medium text-slate-300">اعلان‌ها</span>
+          </div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            ۳ وظیفه فوری در انتظار شماست
+          </p>
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex -space-x-2 space-x-reverse">
+              <div className="w-6 h-6 bg-blue-500 rounded-full border-2 border-slate-800 flex items-center justify-center text-[10px]">م</div>
+              <div className="w-6 h-6 bg-emerald-500 rounded-full border-2 border-slate-800 flex items-center justify-center text-[10px]">س</div>
+              <div className="w-6 h-6 bg-purple-500 rounded-full border-2 border-slate-800 flex items-center justify-center text-[10px]">ع</div>
+            </div>
+            <span className="text-xs text-slate-400">+۵ نفر آنلاین</span>
+          </div>
+        </div>
+      )}
+
       {/* Bottom Section */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/50">
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
-          <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-sm font-bold">
+          <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
             م
           </div>
           {!collapsed && (
@@ -97,18 +120,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
           )}
         </div>
       </div>
-
-      {/* Notification Badge */}
-      {!collapsed && (
-        <div className="absolute top-4 left-4">
-          <button className="relative text-slate-400 hover:text-white transition-colors">
-            <Bell size={20} />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs flex items-center justify-center">
-              3
-            </span>
-          </button>
-        </div>
-      )}
     </aside>
   );
 };

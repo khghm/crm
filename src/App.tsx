@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
 import Deals from './pages/Deals';
 import Tasks from './pages/Tasks';
+import Activities from './pages/Activities';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
@@ -17,6 +18,7 @@ const App: React.FC = () => {
           <Route path="customers" element={<Customers />} />
           <Route path="deals" element={<Deals />} />
           <Route path="tasks" element={<Tasks />} />
+          <Route path="activities" element={<Activities />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
         </Route>
