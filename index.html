@@ -3,26 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRM Pro | سیستم جامع مدیریت ارتباط با مشتری</title>
+    <title>CRM Pro | سیستم مدیریت ارتباط با مشتری</title>
     <meta name="description" content="سیستم حرفه‌ای مدیریت ارتباط با مشتری - CRM Pro" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3EC%3C/text%3E%3C/svg%3E" />
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+      body { font-family: 'Vazirmatn', sans-serif; direction: rtl; }
+      #root { min-height: 100vh; }
+      /* Loading screen */
+      .app-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        z-index: 9999;
       }
-      #root {
-        width: 100%;
-        height: 100%;
+      .app-loader-spinner {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 4px solid #e2e8f0;
+        border-top-color: #3b82f6;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
       }
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="app-loader">
+        <div class="app-loader-spinner"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

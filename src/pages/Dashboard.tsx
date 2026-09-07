@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Users,
   Briefcase,
@@ -12,11 +12,11 @@ import {
   FileText,
   CheckCircle2,
   Clock,
-  Plus,
   Target,
+  Activity,
+  Sparkles,
   Zap,
-  Award,
-  UserPlus
+  Award
 } from 'lucide-react';
 import {
   AreaChart,
@@ -32,69 +32,65 @@ import {
   BarChart,
   Bar,
   RadialBarChart,
-  RadialBar
+  RadialBar,
+  Legend
 } from 'recharts';
-import { mockCustomers, mockDeals, mockTasks, mockActivities, revenueData, dealStageData } from '../data/mockData';
+import { mockCustomers, mockDeals, mockTasks, mockActivities, revenueData, dealStageData, teamPerformance } from '../data/mockData';
 
 const Dashboard: React.FC = () => {
-  const [timeRange, setTimeRange] = useState('month');
-
   const totalRevenue = mockDeals
     .filter(d => d.stage === 'closed_won')
     .reduce((sum, d) => sum + d.value, 0);
 
   const activeDeals = mockDeals.filter(d => !['closed_won', 'closed_lost'].includes(d.stage)).length;
   const pendingTasks = mockTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled').length;
-  const conversionRate = 67;
+  const conversionRate = 68;
 
   const stats = [
     {
-      title: 'کل مشتریان',
-      value: mockCustomers.length.toLocaleString('fa-IR'),
+      title: 'درآمد کل',
+      value: `${(totalRevenue / 1000000).toLocaleString('fa-IR')}`,
+      suffix: 'میلیون',
+      change: '+23%',
+      isPositive: true,
+      icon: DollarSign,
+      gradient: 'from-emerald-500 to-teal-600',
+      bgGradient: 'from-emerald-50 to-teal-50',
+      shadowColor: 'shadow-emerald-500/20'
+    },
+    {
+      title: 'مشتریان فعال',
+      value: mockCustomers.filter(c => c.status === 'active' || c.status === 'vip').length.toLocaleString('fa-IR'),
+      suffix: 'نفر',
       change: '+12%',
       isPositive: true,
       icon: Users,
-      color: '#3b82f6',
-      bgColor: 'bg-blue-50',
-      trend: [20, 25, 22, 30, 28, 35, 40]
+      gradient: 'from-blue-500 to-indigo-600',
+      bgGradient: 'from-blue-50 to-indigo-50',
+      shadowColor: 'shadow-blue-500/20'
     },
     {
       title: 'معاملات فعال',
       value: activeDeals.toLocaleString('fa-IR'),
+      suffix: 'معامله',
       change: '+8%',
       isPositive: true,
       icon: Briefcase,
-      color: '#8b5cf6',
-      bgColor: 'bg-purple-50',
-      trend: [10, 15, 12, 18, 16, 20, 22]
-    },
-    {
-      title: 'درآمد کل',
-      value: `${(totalRevenue / 1000000).toLocaleString('fa-IR')}M`,
-      change: '+23%',
-      isPositive: true,
-      icon: DollarSign,
-      color: '#10b981',
-      bgColor: 'bg-emerald-50',
-      trend: [50, 65, 55, 80, 75, 90, 110]
+      gradient: 'from-purple-500 to-pink-600',
+      bgGradient: 'from-purple-50 to-pink-50',
+      shadowColor: 'shadow-purple-500/20'
     },
     {
       title: 'نرخ تبدیل',
-      value: `${conversionRate}%`,
+      value: conversionRate.toLocaleString('fa-IR'),
+      suffix: 'درصد',
       change: '+5%',
       isPositive: true,
       icon: Target,
-      color: '#f59e0b',
-      bgColor: 'bg-amber-50',
-      trend: [45, 50, 48, 55, 58, 62, 67]
+      gradient: 'from-amber-500 to-orange-600',
+      bgGradient: 'from-amber-50 to-orange-50',
+      shadowColor: 'shadow-amber-500/20'
     }
-  ];
-
-  const quickActions = [
-    { icon: UserPlus, label: 'مشتری جدید', color: 'from-blue-500 to-blue-600', path: '/customers' },
-    { icon: Briefcase, label: 'معامله جدید', color: 'from-purple-500 to-purple-600', path: '/deals' },
-    { icon: Plus, label: 'وظیفه جدید', color: 'from-emerald-500 to-emerald-600', path: '/tasks' },
-    { icon: Phone, label: 'ثبت تماس', color: 'from-amber-500 to-amber-600', path: '/activities' },
   ];
 
   const getActivityIcon = (type: string) => {
@@ -108,106 +104,63 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const getTaskPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-700';
-      case 'high': return 'bg-orange-100 text-orange-700';
-      case 'medium': return 'bg-blue-100 text-blue-700';
-      case 'low': return 'bg-slate-100 text-slate-700';
-      default: return 'bg-slate-100 text-slate-700';
-    }
-  };
-
-  const getTaskPriorityLabel = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'فوری';
-      case 'high': return 'بالا';
-      case 'medium': return 'متوسط';
-      case 'low': return 'کم';
-      default: return priority;
-    }
-  };
-
-  const performanceData = [
-    { name: 'فروردین', target: 100, actual: 85 },
-    { name: 'اردیبهشت', target: 100, actual: 92 },
-    { name: 'خرداد', target: 100, actual: 78 },
-    { name: 'تیر', target: 100, actual: 105 },
-    { name: 'مرداد', target: 100, actual: 95 },
-    { name: 'شهریور', target: 100, actual: 110 },
+  const radialData = [
+    { name: 'هدف فروش', value: 78, fill: '#3b82f6' },
+    { name: 'رضایت مشتری', value: 92, fill: '#22c55e' },
+    { name: 'بهره‌وری تیم', value: 85, fill: '#8b5cf6' },
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">داشبورد</h1>
-          <p className="text-slate-500 mt-1">خوش آمدید! خلاصه وضعیت سیستم شما</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-slate-800">داشبورد</h1>
+            <span className="flex items-center gap-1 px-3 py-1 bg-gradient-to-l from-blue-500 to-purple-500 text-white text-xs font-medium rounded-full">
+              <Sparkles size={12} />
+              هوشمند
+            </span>
+          </div>
+          <p className="text-slate-500">خوش آمدید! خلاصه وضعیت سیستم شما در یک نگاه</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-            {[
-              { id: 'week', label: 'هفته' },
-              { id: 'month', label: 'ماه' },
-              { id: 'quarter', label: 'فصل' },
-              { id: 'year', label: 'سال' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setTimeRange(item.id)}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  timeRange === item.id ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {quickActions.map((action, index) => (
-          <button
-            key={index}
-            className={`flex items-center gap-3 p-4 bg-gradient-to-l ${action.color} text-white rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]`}
-          >
-            <action.icon size={22} />
-            <span className="font-medium text-sm">{action.label}</span>
+          <select className="px-4 py-2.5 bg-white border border-slate-200/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm hover:shadow-md transition-all">
+            <option>۳۰ روز اخیر</option>
+            <option>۷ روز اخیر</option>
+            <option>۳ ماه اخیر</option>
+            <option>امسال</option>
+          </select>
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25 text-sm font-medium btn-ripple">
+            <Zap size={16} />
+            <span>دانلود گزارش</span>
           </button>
-        ))}
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 ${stat.bgColor} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <stat.icon size={24} style={{ color: stat.color }} />
+          <div key={index} className={`relative bg-white rounded-2xl p-6 shadow-sm border border-slate-100/50 card-hover overflow-hidden group`}>
+            {/* Background gradient decoration */}
+            <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-l ${stat.gradient}`}></div>
+            <div className={`absolute -top-10 -left-10 w-32 h-32 bg-gradient-to-br ${stat.bgGradient} rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500`}></div>
+            
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-14 h-14 bg-gradient-to-br ${stat.bgGradient} rounded-2xl flex items-center justify-center shadow-lg ${stat.shadowColor}`}>
+                  <stat.icon size={24} className={`bg-gradient-to-br ${stat.gradient} bg-clip-text`} style={{ color: stat.gradient.includes('emerald') ? '#10b981' : stat.gradient.includes('blue') ? '#3b82f6' : stat.gradient.includes('purple') ? '#8b5cf6' : '#f59e0b' }} />
+                </div>
+                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${stat.isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                  {stat.isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                  {stat.change}
+                </div>
               </div>
-              <div className={`flex items-center gap-1 text-sm font-medium ${stat.isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
-                {stat.isPositive ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-                {stat.change}
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-3xl font-bold text-slate-800">{stat.value}</h3>
+                <span className="text-sm text-slate-500">{stat.suffix}</span>
               </div>
-            </div>
-            <h3 className="text-3xl font-bold text-slate-800">{stat.value}</h3>
-            <p className="text-sm text-slate-500 mt-1">{stat.title}</p>
-            {/* Mini sparkline */}
-            <div className="mt-3 flex items-end gap-1 h-8">
-              {stat.trend.map((value, i) => (
-                <div
-                  key={i}
-                  className="flex-1 rounded-sm transition-all"
-                  style={{
-                    height: `${(value / Math.max(...stat.trend)) * 100}%`,
-                    backgroundColor: stat.color,
-                    opacity: 0.2 + (i / stat.trend.length) * 0.6
-                  }}
-                ></div>
-              ))}
+              <p className="text-sm text-slate-500 mt-1">{stat.title}</p>
             </div>
           </div>
         ))}
@@ -216,116 +169,81 @@ const Dashboard: React.FC = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Revenue Chart */}
-        <div className="xl:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="xl:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100/50">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="font-bold text-slate-800 text-lg">نمودار درآمد</h3>
               <p className="text-sm text-slate-500">درآمد ماهانه در سال جاری</p>
             </div>
-            <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-lg">
-              <TrendingUp size={18} className="text-emerald-500" />
-              <span className="text-emerald-600 font-medium text-sm">+23% رشد</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full">
+              <TrendingUp size={16} className="text-emerald-500" />
+              <span className="text-emerald-600 font-bold text-sm">+23% رشد</span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorTarget" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#94a3b8" />
               <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} />
               <Tooltip
-                contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', direction: 'rtl', fontFamily: 'Vazirmatn' }}
-                formatter={(value: number) => [`${(value / 1000000).toFixed(0)} میلیون تومان`, 'درآمد']}
+                contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', direction: 'rtl', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
+                formatter={(value: number, name: string) => [`${(value / 1000000).toFixed(0)} میلیون تومان`, name === 'revenue' ? 'درآمد' : 'هدف']}
               />
+              <Area type="monotone" dataKey="target" stroke="#8b5cf6" strokeWidth={2} strokeDasharray="5 5" fill="url(#colorTarget)" />
               <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fill="url(#colorRevenue)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Deal Stages Pie Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h3 className="font-bold text-slate-800 text-lg mb-1">وضعیت معاملات</h3>
-          <p className="text-sm text-slate-500 mb-4">توزیع معاملات بر اساس مرحله</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={dealStageData}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
-                paddingAngle={3}
-                dataKey="value"
-              >
-                {dealStageData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', direction: 'rtl', fontFamily: 'Vazirmatn' }}
-              />
-            </PieChart>
+        {/* Performance Radial */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100/50">
+          <h3 className="font-bold text-slate-800 text-lg mb-1">عملکرد کلی</h3>
+          <p className="text-sm text-slate-500 mb-4">شاخص‌های کلیدی عملکرد</p>
+          <ResponsiveContainer width="100%" height={240}>
+            <RadialBarChart cx="50%" cy="50%" innerRadius="20%" outerRadius="90%" data={radialData} startAngle={180} endAngle={0}>
+              <RadialBar dataKey="value" cornerRadius={10} />
+              <Legend iconSize={10} layout="vertical" verticalAlign="bottom" align="center" />
+              <Tooltip formatter={(value: number) => [`${value}%`, '']} />
+            </RadialBarChart>
           </ResponsiveContainer>
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {dealStageData.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                <span className="text-xs text-slate-600">{item.name}</span>
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {radialData.map((item, i) => (
+              <div key={i} className="text-center p-2 bg-slate-50 rounded-xl">
+                <p className="text-lg font-bold" style={{ color: item.fill }}>{item.value}%</p>
+                <p className="text-xs text-slate-500">{item.name}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Performance Chart */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="font-bold text-slate-800 text-lg">عملکرد فروش</h3>
-            <p className="text-sm text-slate-500">مقایسه هدف و عملکرد واقعی</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-xs text-slate-500">هدف</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-              <span className="text-xs text-slate-500">عملکرد</span>
-            </div>
-          </div>
-        </div>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={performanceData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-            <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
-            <Tooltip
-              contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', direction: 'rtl', fontFamily: 'Vazirmatn' }}
-            />
-            <Bar dataKey="target" name="هدف" fill="#3b82f6" radius={[4, 4, 0, 0]} opacity={0.3} />
-            <Bar dataKey="actual" name="عملکرد" fill="#10b981" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
       {/* Bottom Row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Activities */}
-        <div className="xl:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-slate-800 text-lg">فعالیت‌های اخیر</h3>
-            <Zap size={18} className="text-amber-500" />
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100/50">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                <Activity size={16} className="text-white" />
+              </div>
+              <h3 className="font-bold text-slate-800">فعالیت‌های اخیر</h3>
+            </div>
+            <button className="text-xs text-blue-600 font-medium hover:text-blue-700">مشاهده همه</button>
           </div>
           <div className="space-y-3">
             {mockActivities.slice(0, 5).map((activity) => (
-              <div key={activity.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <div className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div key={activity.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-all cursor-pointer group">
+                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                   {getActivityIcon(activity.type)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -340,24 +258,33 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Pending Tasks */}
-        <div className="xl:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-slate-800 text-lg">وظایف در انتظار</h3>
-            <Clock size={18} className="text-blue-500" />
+        {/* Team Performance */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100/50">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                <Award size={16} className="text-white" />
+              </div>
+              <h3 className="font-bold text-slate-800">عملکرد تیم</h3>
+            </div>
           </div>
-          <div className="space-y-3">
-            {mockTasks.filter(t => t.status !== 'completed').slice(0, 5).map((task) => (
-              <div key={task.id} className="p-3 rounded-xl border border-slate-100 hover:border-blue-200 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-slate-700 truncate flex-1">{task.title}</p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getTaskPriorityColor(task.priority)}`}>
-                    {getTaskPriorityLabel(task.priority)}
-                  </span>
+          <div className="space-y-4">
+            {teamPerformance.map((member, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <div className={`w-10 h-10 bg-gradient-to-br ${member.color} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg`}>
+                  {member.avatar}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">{task.assignedTo}</span>
-                  <span className="text-xs text-slate-400">{new Date(task.dueDate).toLocaleDateString('fa-IR')}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium text-slate-700 truncate">{member.name}</p>
+                    <span className="text-xs font-bold text-emerald-600">{member.revenue}M</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2">
+                    <div
+                      className={`bg-gradient-to-l ${member.color} h-2 rounded-full transition-all duration-1000`}
+                      style={{ width: `${(member.deals / 15) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -365,20 +292,24 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Top Deals */}
-        <div className="xl:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-slate-800 text-lg">برترین معاملات</h3>
-            <Award size={18} className="text-purple-500" />
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100/50">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                <Briefcase size={16} className="text-white" />
+              </div>
+              <h3 className="font-bold text-slate-800">برترین معاملات</h3>
+            </div>
           </div>
           <div className="space-y-3">
             {mockDeals
               .filter(d => !['closed_won', 'closed_lost'].includes(d.stage))
               .sort((a, b) => b.value - a.value)
-              .slice(0, 5)
+              .slice(0, 4)
               .map((deal) => (
-                <div key={deal.id} className="p-3 rounded-xl border border-slate-100 hover:border-purple-200 transition-colors">
+                <div key={deal.id} className="p-3 rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-slate-700 truncate flex-1">{deal.title}</p>
+                    <p className="text-sm font-medium text-slate-700 truncate flex-1 group-hover:text-blue-600 transition-colors">{deal.title}</p>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-slate-500">{deal.customerName}</span>
@@ -394,6 +325,28 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
               ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats Bar */}
+      <div className="bg-gradient-to-l from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-xl">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="text-center">
+            <p className="text-3xl font-bold">{mockCustomers.length}</p>
+            <p className="text-sm opacity-80 mt-1">کل مشتریان</p>
+          </div>
+          <div className="text-center border-r border-white/20">
+            <p className="text-3xl font-bold">{mockDeals.length}</p>
+            <p className="text-sm opacity-80 mt-1">کل معاملات</p>
+          </div>
+          <div className="text-center border-r border-white/20">
+            <p className="text-3xl font-bold">{mockTasks.filter(t => t.status === 'completed').length}</p>
+            <p className="text-sm opacity-80 mt-1">وظایف تکمیل‌شده</p>
+          </div>
+          <div className="text-center border-r border-white/20">
+            <p className="text-3xl font-bold">{mockActivities.length}</p>
+            <p className="text-sm opacity-80 mt-1">فعالیت‌ها</p>
           </div>
         </div>
       </div>
