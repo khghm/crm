@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Plus, Search, CheckCircle2, Circle, Clock, AlertCircle, X, Calendar, User
-} from 'lucide-react';
+import { Plus, Search, CheckCircle2, Circle, Clock, AlertCircle, X, Calendar, User, Zap } from 'lucide-react';
 import { mockTasks } from '../data/mockData';
 import { Task } from '../types';
 
@@ -11,9 +9,7 @@ const Tasks: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [formData, setFormData] = useState<Partial<Task>>({
-    title: '', description: '', dueDate: '', priority: 'medium', status: 'pending', assignedTo: ''
-  });
+  const [formData, setFormData] = useState<Partial<Task>>({ title: '', description: '', dueDate: '', priority: 'medium', status: 'pending', assignedTo: '' });
 
   const filteredTasks = tasks.filter(t => {
     const matchesSearch = t.title.includes(searchTerm) || t.description.includes(searchTerm);
@@ -24,51 +20,33 @@ const Tasks: React.FC = () => {
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'badge-error';
-      case 'high': return 'badge-warning';
-      case 'medium': return 'badge-brand';
-      case 'low': return 'badge-gray';
-      default: return 'badge-gray';
+      case 'urgent': return 'badge-red';
+      case 'high': return 'badge-amber';
+      case 'medium': return 'badge-cyan';
+      case 'low': return 'badge-neutral';
+      default: return 'badge-neutral';
     }
   };
 
   const getPriorityLabel = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'فوری';
-      case 'high': return 'بالا';
-      case 'medium': return 'متوسط';
-      case 'low': return 'کم';
-      default: return priority;
-    }
+    switch (priority) { case 'urgent': return 'فوری'; case 'high': return 'بالا'; case 'medium': return 'متوسط'; case 'low': return 'کم'; default: return priority; }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle2 size={18} className="text-emerald-500" />;
-      case 'in_progress': return <Clock size={18} className="text-blue-500" />;
-      case 'cancelled': return <AlertCircle size={18} className="text-red-500" />;
-      default: return <Circle size={18} className="text-gray-300" />;
+      case 'completed': return <CheckCircle2 size={18} style={{ color: 'var(--neon-green)' }} />;
+      case 'in_progress': return <Clock size={18} style={{ color: 'var(--neon-cyan)' }} />;
+      case 'cancelled': return <AlertCircle size={18} style={{ color: 'var(--neon-red)' }} />;
+      default: return <Circle size={18} className="text-white/20" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending': return 'badge-gray';
-      case 'in_progress': return 'badge-brand';
-      case 'completed': return 'badge-success';
-      case 'cancelled': return 'badge-error';
-      default: return 'badge-gray';
-    }
+    switch (status) { case 'pending': return 'badge-neutral'; case 'in_progress': return 'badge-cyan'; case 'completed': return 'badge-green'; case 'cancelled': return 'badge-red'; default: return 'badge-neutral'; }
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'pending': return 'در انتظار';
-      case 'in_progress': return 'در حال انجام';
-      case 'completed': return 'تکمیل شده';
-      case 'cancelled': return 'لغو شده';
-      default: return status;
-    }
+    switch (status) { case 'pending': return 'در انتظار'; case 'in_progress': return 'در حال انجام'; case 'completed': return 'تکمیل شده'; case 'cancelled': return 'لغو شده'; default: return status; }
   };
 
   const toggleTaskStatus = (taskId: string) => {
@@ -82,19 +60,9 @@ const Tasks: React.FC = () => {
   };
 
   const handleAddTask = () => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: formData.title || '',
-      description: formData.description || '',
-      dueDate: formData.dueDate || '',
-      priority: (formData.priority as Task['priority']) || 'medium',
-      status: (formData.status as Task['status']) || 'pending',
-      assignedTo: formData.assignedTo || '',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
+    const newTask: Task = { id: Date.now().toString(), title: formData.title || '', description: formData.description || '', dueDate: formData.dueDate || '', priority: (formData.priority as Task['priority']) || 'medium', status: (formData.status as Task['status']) || 'pending', assignedTo: formData.assignedTo || '', createdAt: new Date().toISOString().split('T')[0] };
     setTasks([newTask, ...tasks]);
     setShowModal(false);
-    setFormData({ title: '', description: '', dueDate: '', priority: 'medium', status: 'pending', assignedTo: '' });
   };
 
   const stats = {
@@ -108,57 +76,56 @@ const Tasks: React.FC = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-heading-1">وظایف</h1>
-          <p className="text-body-sm mt-1">{stats.total} وظیفه ثبت شده</p>
+          <h1 className="text-3xl font-bold text-white mb-1">وظایف</h1>
+          <p className="text-sm text-white/40">{stats.total} وظیفه ثبت شده</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn btn-primary px-3 py-2 text-sm">
-          <Plus size={16} />
-          <span>وظیفه جدید</span>
+        <button onClick={() => setShowModal(true)} className="btn-premium btn-primary-premium">
+          <Plus size={16} /><span>وظیفه جدید</span>
         </button>
       </div>
 
       {/* Progress */}
-      <div className="card p-5">
+      <div className="glass-card p-5">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-gray-700">پیشرفت کلی</span>
-          <span className="text-sm font-semibold text-emerald-600 num">{Math.round((stats.completed / stats.total) * 100)}%</span>
+          <span className="text-sm font-medium text-white/70">پیشرفت کلی</span>
+          <span className="text-sm font-bold num" style={{ color: 'var(--neon-green)' }}>{Math.round((stats.completed / stats.total) * 100)}%</span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+        <div className="w-full rounded-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
           <div className="h-full flex">
-            <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: `${(stats.completed / stats.total) * 100}%` }}></div>
-            <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${(stats.inProgress / stats.total) * 100}%` }}></div>
+            <div className="h-full transition-all duration-500" style={{ width: `${(stats.completed / stats.total) * 100}%`, background: 'var(--neon-green)', boxShadow: '0 0 10px var(--neon-green)' }}></div>
+            <div className="h-full transition-all duration-500" style={{ width: `${(stats.inProgress / stats.total) * 100}%`, background: 'var(--neon-cyan)', boxShadow: '0 0 10px var(--neon-cyan)' }}></div>
           </div>
         </div>
         <div className="flex items-center gap-4 mt-3">
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-            <span className="text-xs text-gray-500">تکمیل شده ({stats.completed})</span>
+            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-green)', boxShadow: '0 0 6px var(--neon-green)' }}></div>
+            <span className="text-[10px] text-white/50">تکمیل شده ({stats.completed})</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
-            <span className="text-xs text-gray-500">در حال انجام ({stats.inProgress})</span>
+            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-cyan)', boxShadow: '0 0 6px var(--neon-cyan)' }}></div>
+            <span className="text-[10px] text-white/50">در حال انجام ({stats.inProgress})</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-gray-200 rounded-full"></div>
-            <span className="text-xs text-gray-500">در انتظار ({stats.pending})</span>
+            <div className="w-2 h-2 rounded-full bg-white/20"></div>
+            <span className="text-[10px] text-white/50">در انتظار ({stats.pending})</span>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="card p-4">
+      <div className="glass-card p-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <input type="text" placeholder="جستجوی وظایف..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input pr-10" />
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30" size={16} />
+            <input type="text" placeholder="جستجوی وظایف..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-premium pr-11" />
           </div>
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input">
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-premium w-auto">
             <option value="all">همه وضعیت‌ها</option>
             <option value="pending">در انتظار</option>
             <option value="in_progress">در حال انجام</option>
             <option value="completed">تکمیل شده</option>
           </select>
-          <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)} className="input">
+          <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)} className="input-premium w-auto">
             <option value="all">همه اولویت‌ها</option>
             <option value="urgent">فوری</option>
             <option value="high">بالا</option>
@@ -171,7 +138,7 @@ const Tasks: React.FC = () => {
       {/* Task List */}
       <div className="space-y-2 stagger">
         {filteredTasks.map((task) => (
-          <div key={task.id} className={`card card-hover p-4 ${task.status === 'completed' ? 'opacity-60' : ''}`}>
+          <div key={task.id} className={`glass-card p-4 ${task.status === 'completed' ? 'opacity-50' : ''}`}>
             <div className="flex items-start gap-3">
               <button onClick={() => toggleTaskStatus(task.id)} className="mt-0.5 flex-shrink-0 hover:scale-110 transition-transform">
                 {getStatusIcon(task.status)}
@@ -179,85 +146,33 @@ const Tasks: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className={`text-sm font-medium text-gray-900 ${task.status === 'completed' ? 'line-through text-gray-500' : ''}`}>
-                      {task.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>
+                    <h3 className={`text-sm font-medium text-white ${task.status === 'completed' ? 'line-through text-white/40' : ''}`}>{task.title}</h3>
+                    <p className="text-xs text-white/40 mt-0.5">{task.description}</p>
                   </div>
-                  <span className={`badge ${getPriorityBadge(task.priority)}`}>
-                    {getPriorityLabel(task.priority)}
-                  </span>
+                  <span className={`badge-premium ${getPriorityBadge(task.priority)}`}>{getPriorityLabel(task.priority)}</span>
                 </div>
                 <div className="flex items-center gap-3 mt-2.5">
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Calendar size={12} />
+                  <div className="flex items-center gap-1 text-[10px] text-white/40">
+                    <Calendar size={11} />
                     <span>{new Date(task.dueDate).toLocaleDateString('fa-IR')}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <User size={12} />
+                  <div className="flex items-center gap-1 text-[10px] text-white/40">
+                    <User size={11} />
                     <span>{task.assignedTo}</span>
                   </div>
-                  <span className={`badge ${getStatusBadge(task.status)}`}>
-                    {getStatusLabel(task.status)}
-                  </span>
+                  <span className={`badge-premium ${getStatusBadge(task.status)}`}>{getStatusLabel(task.status)}</span>
                 </div>
               </div>
             </div>
           </div>
         ))}
         {filteredTasks.length === 0 && (
-          <div className="text-center py-16 card">
-            <CheckCircle2 size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-sm text-gray-500">وظیفه‌ای یافت نشد</p>
+          <div className="text-center py-16 glass-card">
+            <Zap size={40} className="mx-auto text-white/20 mb-3" />
+            <p className="text-sm text-white/40">وظیفه‌ای یافت نشد</p>
           </div>
         )}
       </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in">
-            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-gray-200 rounded-t-xl">
-              <h2 className="text-heading-3">افزودن وظیفه جدید</h2>
-              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-md hover:bg-gray-100"><X size={18} /></button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="text-label block mb-1.5">عنوان</label>
-                <input type="text" value={formData.title || ''} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" placeholder="عنوان وظیفه" />
-              </div>
-              <div>
-                <label className="text-label block mb-1.5">توضیحات</label>
-                <textarea value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="input resize-none" placeholder="توضیحات..." />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-label block mb-1.5">سررسید</label>
-                  <input type="date" value={formData.dueDate || ''} onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })} className="input" />
-                </div>
-                <div>
-                  <label className="text-label block mb-1.5">اولویت</label>
-                  <select value={formData.priority || 'medium'} onChange={(e) => setFormData({ ...formData, priority: e.target.value as Task['priority'] })} className="input">
-                    <option value="low">کم</option>
-                    <option value="medium">متوسط</option>
-                    <option value="high">بالا</option>
-                    <option value="urgent">فوری</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="text-label block mb-1.5">محول به</label>
-                <input type="text" value={formData.assignedTo || ''} onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })} className="input" placeholder="نام مسئول" />
-              </div>
-            </div>
-            <div className="flex items-center justify-end gap-2 p-6 border-t border-gray-200 sticky bottom-0 bg-white rounded-b-xl">
-              <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
-              <button onClick={handleAddTask} className="btn btn-primary px-4 py-2 text-sm">ایجاد وظیفه</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
