@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRM Pro | سیستم مدیریت ارتباط با مشتری</title>
+    <meta name="description" content="سیستم حرفه‌ای مدیریت ارتباط با مشتری - CRM Pro" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+      body { font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; direction: rtl; background: linear-gradient(135deg, #f8fafc 0%, #fef2f2 50%, #f0fdf4 100%); }
+      #root { min-height: 100vh; }
+      .app-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8fafc 0%, #fef2f2 50%, #f0fdf4 100%);
+        z-index: 9999;
+      }
+      .app-loader-spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid #e2e8f0;
+        border-top-color: #3b82f6;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="app-loader">
+        <div class="app-loader-spinner"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
