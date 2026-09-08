@@ -7,23 +7,20 @@ import {
   MoreHorizontal,
   DollarSign,
   TrendingUp,
-  Filter,
   LayoutGrid,
   List,
-  ChevronDown,
-  Zap,
   Target
 } from 'lucide-react';
 import { mockDeals, mockCustomers } from '../data/mockData';
 import { Deal } from '../types';
 
 const stages = [
-  { id: 'lead', title: 'سرنخ', color: 'bg-slate-400', borderColor: 'border-slate-400', bgColor: 'bg-slate-50', textColor: 'text-slate-600' },
-  { id: 'qualified', title: 'واجد شرایط', color: 'bg-blue-400', borderColor: 'border-blue-400', bgColor: 'bg-blue-50', textColor: 'text-blue-600' },
-  { id: 'proposal', title: 'پیشنهاد', color: 'bg-purple-400', borderColor: 'border-purple-400', bgColor: 'bg-purple-50', textColor: 'text-purple-600' },
-  { id: 'negotiation', title: 'مذاکره', color: 'bg-amber-400', borderColor: 'border-amber-400', bgColor: 'bg-amber-50', textColor: 'text-amber-600' },
-  { id: 'closed_won', title: 'موفق', color: 'bg-emerald-400', borderColor: 'border-emerald-400', bgColor: 'bg-emerald-50', textColor: 'text-emerald-600' },
-  { id: 'closed_lost', title: 'ناموفق', color: 'bg-red-400', borderColor: 'border-red-400', bgColor: 'bg-red-50', textColor: 'text-red-600' },
+  { id: 'lead', title: 'سرنخ', color: '#98A2B3', bg: '#F2F4F7', text: '#344054' },
+  { id: 'qualified', title: 'واجد شرایط', color: '#2E90FA', bg: '#EFF8FF', text: '#175CD3' },
+  { id: 'proposal', title: 'پیشنهاد', color: '#7A5AF8', bg: '#F4F3FF', text: '#5925DC' },
+  { id: 'negotiation', title: 'مذاکره', color: '#F79009', bg: '#FFFAEB', text: '#B54708' },
+  { id: 'closed_won', title: 'موفق', color: '#12B76A', bg: '#ECFDF3', text: '#027A48' },
+  { id: 'closed_lost', title: 'ناموفق', color: '#F04438', bg: '#FEF3F2', text: '#B42318' },
 ];
 
 const Deals: React.FC = () => {
@@ -32,36 +29,20 @@ const Deals: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'pipeline' | 'list'>('pipeline');
   const [formData, setFormData] = useState<Partial<Deal>>({
-    title: '',
-    customerId: '',
-    customerName: '',
-    value: 0,
-    stage: 'lead',
-    probability: 20,
-    expectedCloseDate: '',
-    description: '',
-    priority: 'medium'
+    title: '', customerId: '', customerName: '', value: 0,
+    stage: 'lead', probability: 20, expectedCloseDate: '', description: '', priority: 'medium'
   });
 
   const filteredDeals = deals.filter(d =>
     d.title.includes(searchTerm) || d.customerName.includes(searchTerm)
   );
 
-  const getDealsByStage = (stageId: string) => {
-    return filteredDeals.filter(d => d.stage === stageId);
-  };
-
-  const getTotalValue = (stageDeals: Deal[]) => {
-    return stageDeals.reduce((sum, d) => sum + d.value, 0);
-  };
+  const getDealsByStage = (stageId: string) => filteredDeals.filter(d => d.stage === stageId);
+  const getTotalValue = (stageDeals: Deal[]) => stageDeals.reduce((sum, d) => sum + d.value, 0);
 
   const totalPipelineValue = deals
     .filter(d => !['closed_won', 'closed_lost'].includes(d.stage))
     .reduce((sum, d) => sum + d.value, 0);
-
-  const weightedPipeline = deals
-    .filter(d => !['closed_won', 'closed_lost'].includes(d.stage))
-    .reduce((sum, d) => sum + (d.value * d.probability / 100), 0);
 
   const handleAddDeal = () => {
     const newDeal: Deal = {
@@ -82,104 +63,89 @@ const Deals: React.FC = () => {
     setFormData({ title: '', customerId: '', customerName: '', value: 0, stage: 'lead', probability: 20, expectedCloseDate: '', description: '', priority: 'medium' });
   };
 
-  const getStageLabel = (stage: string) => {
-    return stages.find(s => s.id === stage)?.title || stage;
-  };
-
-  const getStageObj = (stage: string) => {
-    return stages.find(s => s.id === stage) || stages[0];
-  };
-
-  const getPriorityBadge = (priority?: string) => {
-    switch (priority) {
-      case 'high': return <span className="px-2 py-0.5 text-[10px] font-bold bg-red-50 text-red-600 rounded-full">بالا</span>;
-      case 'medium': return <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-600 rounded-full">متوسط</span>;
-      case 'low': return <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-50 text-slate-600 rounded-full">کم</span>;
-      default: return null;
-    }
-  };
+  const getStageObj = (stage: string) => stages.find(s => s.id === stage) || stages[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">مدیریت معاملات</h1>
-          <p className="text-slate-500 mt-1">پایپلاین فروش و مدیریت فرصت‌ها</p>
+          <h1 className="text-heading-1">معاملات</h1>
+          <p className="text-body-sm mt-1">پایپلاین فروش و مدیریت فرصت‌ها</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex bg-white rounded-xl border border-slate-200/50 overflow-hidden shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="flex bg-gray-100 rounded-lg p-0.5">
             <button
               onClick={() => setViewMode('pipeline')}
-              className={`px-4 py-2.5 text-sm font-medium transition-all flex items-center gap-2 ${viewMode === 'pipeline' ? 'bg-gradient-to-l from-blue-600 to-purple-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'pipeline' ? 'bg-white shadow-xs text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
             >
-              <LayoutGrid size={16} />
+              <LayoutGrid size={14} />
               پایپلاین
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-4 py-2.5 text-sm font-medium transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-gradient-to-l from-blue-600 to-purple-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-white shadow-xs text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
             >
-              <List size={16} />
+              <List size={14} />
               لیست
             </button>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25 text-sm font-medium btn-ripple"
+            className="btn btn-primary px-3 py-2 text-sm"
           >
-            <Plus size={18} />
+            <Plus size={16} />
             <span>معامله جدید</span>
           </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100/50 card-hover">
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger">
+        <div className="card p-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <DollarSign size={22} className="text-white" />
+            <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+              <DollarSign size={20} className="text-blue-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-500">ارزش کل پایپلاین</p>
-              <p className="text-xl font-bold text-slate-800">{(totalPipelineValue / 1000000).toLocaleString('fa-IR')}M</p>
+              <p className="text-caption">ارزش کل پایپلاین</p>
+              <p className="text-xl font-semibold text-gray-900 num">{(totalPipelineValue / 1000000).toLocaleString('fa-IR')}M</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100/50 card-hover">
+        <div className="card p-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <Target size={22} className="text-white" />
+            <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+              <Target size={20} className="text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-500">ارزش وزنی</p>
-              <p className="text-xl font-bold text-slate-800">{(weightedPipeline / 1000000).toLocaleString('fa-IR')}M</p>
+              <p className="text-caption">معاملات موفق</p>
+              <p className="text-xl font-semibold text-gray-900 num">{deals.filter(d => d.stage === 'closed_won').length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100/50 card-hover">
+        <div className="card p-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <TrendingUp size={22} className="text-white" />
+            <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+              <TrendingUp size={20} className="text-purple-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-500">معاملات فعال</p>
-              <p className="text-xl font-bold text-slate-800">{deals.filter(d => !['closed_won', 'closed_lost'].includes(d.stage)).length}</p>
+              <p className="text-caption">معاملات فعال</p>
+              <p className="text-xl font-semibold text-gray-900 num">{deals.filter(d => !['closed_won', 'closed_lost'].includes(d.stage)).length}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+      <div className="relative max-w-sm">
+        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
         <input
           type="text"
           placeholder="جستجوی معاملات..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pr-11 pl-4 py-3 bg-white border border-slate-200/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 shadow-sm"
+          className="input pr-10"
         />
       </div>
 
@@ -190,66 +156,52 @@ const Deals: React.FC = () => {
             const stageDeals = getDealsByStage(stage.id);
             const totalValue = getTotalValue(stageDeals);
             return (
-              <div key={stage.id} className="flex-shrink-0 w-80">
-                {/* Stage Header */}
-                <div className={`bg-white rounded-t-2xl p-4 border-t-4 ${stage.borderColor} shadow-sm`}>
-                  <div className="flex items-center justify-between">
+              <div key={stage.id} className="flex-shrink-0 w-[300px]">
+                <div className="card p-4 mb-3">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
-                      <h3 className="font-bold text-slate-800 text-sm">{stage.title}</h3>
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: stage.color }}></div>
+                      <h3 className="text-sm font-semibold text-gray-900">{stage.title}</h3>
                     </div>
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${stage.bgColor} ${stage.textColor}`}>
+                    <span className="badge" style={{ backgroundColor: stage.bg, color: stage.text }}>
                       {stageDeals.length}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2 font-medium">
+                  <p className="text-xs text-gray-500 num">
                     {(totalValue / 1000000).toLocaleString('fa-IR')} میلیون تومان
                   </p>
                 </div>
 
-                {/* Stage Deals */}
-                <div className="bg-slate-50/50 rounded-b-2xl p-3 space-y-3 min-h-[300px]">
+                <div className="space-y-2 min-h-[200px]">
                   {stageDeals.map((deal) => (
-                    <div key={deal.id} className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 hover:shadow-lg hover:border-blue-200 transition-all cursor-pointer group">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h4 className="font-bold text-slate-800 text-sm leading-tight group-hover:text-blue-600 transition-colors">{deal.title}</h4>
-                          <p className="text-xs text-slate-500 mt-1">{deal.customerName}</p>
-                        </div>
-                        <button className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-slate-100 transition-all">
-                          <MoreHorizontal size={14} className="text-slate-400" />
+                    <div key={deal.id} className="card card-hover p-4 cursor-pointer group">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-sm font-medium text-gray-900 leading-tight flex-1 group-hover:text-blue-600 transition-colors">{deal.title}</h4>
+                        <button className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-100 transition-all">
+                          <MoreHorizontal size={14} className="text-gray-400" />
                         </button>
                       </div>
-                      
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-base font-bold text-emerald-600">
+                      <p className="text-xs text-gray-500 mb-3">{deal.customerName}</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-gray-900 num">
                           {(deal.value / 1000000).toLocaleString('fa-IR')}M
                         </span>
-                        {getPriorityBadge(deal.priority)}
-                      </div>
-
-                      {/* Probability Bar */}
-                      <div className="w-full bg-slate-100 rounded-full h-2 mb-2">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-500 ${stage.color}`}
-                          style={{ width: `${deal.probability}%` }}
-                        ></div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-400">{deal.probability}% احتمال</span>
-                        <span className="text-xs text-slate-400 flex items-center gap-1">
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
                           <Calendar size={10} />
                           {new Date(deal.expectedCloseDate).toLocaleDateString('fa-IR')}
                         </span>
                       </div>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all"
+                          style={{ width: `${deal.probability}%`, backgroundColor: stage.color }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1.5 num">{deal.probability}% احتمال</p>
                     </div>
                   ))}
                   {stageDeals.length === 0 && (
-                    <div className="text-center py-12 text-slate-400 text-sm">
-                      <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Zap size={20} className="text-slate-300" />
-                      </div>
+                    <div className="text-center py-8 text-gray-400 text-xs">
                       معامله‌ای وجود ندارد
                     </div>
                   )}
@@ -262,50 +214,52 @@ const Deals: React.FC = () => {
 
       {/* List View */}
       {viewMode === 'list' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100/50 overflow-hidden">
-          <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-slate-50/50 border-b border-slate-100 text-sm font-medium text-slate-600">
+        <div className="card overflow-hidden">
+          <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
             <div className="col-span-3">عنوان</div>
             <div className="col-span-2">مشتری</div>
             <div className="col-span-2">مبلغ</div>
             <div className="col-span-2">مرحله</div>
             <div className="col-span-2">احتمال</div>
-            <div className="col-span-1">اولویت</div>
+            <div className="col-span-1">تاریخ</div>
           </div>
-          <div className="divide-y divide-slate-100/50">
+          <div className="divide-y divide-gray-100">
             {filteredDeals.map((deal) => {
               const stageObj = getStageObj(deal.stage);
               return (
-                <div key={deal.id} className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gradient-to-l hover:from-blue-50/30 hover:to-transparent transition-all items-center group cursor-pointer">
+                <div key={deal.id} className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors items-center group cursor-pointer">
                   <div className="col-span-3">
-                    <p className="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition-colors">{deal.title}</p>
-                    <p className="text-xs text-slate-500 truncate mt-0.5">{deal.description}</p>
+                    <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{deal.title}</p>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">{deal.description}</p>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-sm text-slate-600">{deal.customerName}</span>
+                    <span className="text-sm text-gray-700">{deal.customerName}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-sm font-bold text-emerald-600">
+                    <span className="text-sm font-semibold text-gray-900 num">
                       {(deal.value / 1000000).toLocaleString('fa-IR')}M
                     </span>
                   </div>
                   <div className="col-span-2">
-                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${stageObj.bgColor} ${stageObj.textColor}`}>
-                      {getStageLabel(deal.stage)}
+                    <span className="badge" style={{ backgroundColor: stageObj.bg, color: stageObj.text }}>
+                      {stageObj.title}
                     </span>
                   </div>
                   <div className="col-span-2">
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-slate-100 rounded-full h-2">
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
                         <div
-                          className={`h-2 rounded-full ${stageObj.color}`}
-                          style={{ width: `${deal.probability}%` }}
+                          className="h-1.5 rounded-full"
+                          style={{ width: `${deal.probability}%`, backgroundColor: stageObj.color }}
                         ></div>
                       </div>
-                      <span className="text-xs font-bold text-slate-600">{deal.probability}%</span>
+                      <span className="text-xs text-gray-500 num">{deal.probability}%</span>
                     </div>
                   </div>
                   <div className="col-span-1">
-                    {getPriorityBadge(deal.priority)}
+                    <span className="text-xs text-gray-500">
+                      {new Date(deal.expectedCloseDate).toLocaleDateString('fa-IR')}
+                    </span>
                   </div>
                 </div>
               );
@@ -317,85 +271,49 @@ const Deals: React.FC = () => {
       {/* Add Deal Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-100 rounded-t-3xl">
-              <h2 className="text-xl font-bold text-slate-800">افزودن معامله جدید</h2>
-              <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-slate-100 transition-colors">
-                <X size={20} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-gray-200 rounded-t-xl">
+              <h2 className="text-heading-3">افزودن معامله جدید</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-md hover:bg-gray-100 transition-colors">
+                <X size={18} />
               </button>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">عنوان معامله</label>
-                <input
-                  type="text"
-                  value={formData.title || ''}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
-                  placeholder="عنوان معامله"
-                />
+                <label className="text-label block mb-1.5">عنوان معامله</label>
+                <input type="text" value={formData.title || ''} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" placeholder="عنوان معامله" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">مشتری</label>
-                <select
-                  value={formData.customerId || ''}
-                  onChange={(e) => {
-                    const customer = mockCustomers.find(c => c.id === e.target.value);
-                    setFormData({ ...formData, customerId: e.target.value, customerName: customer?.name || '' });
-                  }}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                >
+                <label className="text-label block mb-1.5">مشتری</label>
+                <select value={formData.customerId || ''} onChange={(e) => {
+                  const customer = mockCustomers.find(c => c.id === e.target.value);
+                  setFormData({ ...formData, customerId: e.target.value, customerName: customer?.name || '' });
+                }} className="input">
                   <option value="">انتخاب مشتری</option>
-                  {mockCustomers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} - {c.company}</option>
-                  ))}
+                  {mockCustomers.map(c => (<option key={c.id} value={c.id}>{c.name} - {c.company}</option>))}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">مبلغ (تومان)</label>
-                  <input
-                    type="number"
-                    value={formData.value || ''}
-                    onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
-                    placeholder="0"
-                  />
+                  <label className="text-label block mb-1.5">مبلغ (تومان)</label>
+                  <input type="number" value={formData.value || ''} onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })} className="input" placeholder="0" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">احتمال (%)</label>
-                  <input
-                    type="number"
-                    value={formData.probability || ''}
-                    onChange={(e) => setFormData({ ...formData, probability: Number(e.target.value) })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
-                    placeholder="20"
-                    min="0"
-                    max="100"
-                  />
+                  <label className="text-label block mb-1.5">احتمال (%)</label>
+                  <input type="number" value={formData.probability || ''} onChange={(e) => setFormData({ ...formData, probability: Number(e.target.value) })} className="input" placeholder="20" min="0" max="100" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">مرحله</label>
-                  <select
-                    value={formData.stage || 'lead'}
-                    onChange={(e) => setFormData({ ...formData, stage: e.target.value as Deal['stage'] })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  >
-                    {stages.map(s => (
-                      <option key={s.id} value={s.id}>{s.title}</option>
-                    ))}
+                  <label className="text-label block mb-1.5">مرحله</label>
+                  <select value={formData.stage || 'lead'} onChange={(e) => setFormData({ ...formData, stage: e.target.value as Deal['stage'] })} className="input">
+                    {stages.map(s => (<option key={s.id} value={s.id}>{s.title}</option>))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">اولویت</label>
-                  <select
-                    value={formData.priority || 'medium'}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as Deal['priority'] })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  >
+                  <label className="text-label block mb-1.5">اولویت</label>
+                  <select value={formData.priority || 'medium'} onChange={(e) => setFormData({ ...formData, priority: e.target.value as Deal['priority'] })} className="input">
                     <option value="low">کم</option>
                     <option value="medium">متوسط</option>
                     <option value="high">بالا</option>
@@ -403,38 +321,17 @@ const Deals: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">تاریخ بسته شدن</label>
-                <input
-                  type="date"
-                  value={formData.expectedCloseDate || ''}
-                  onChange={(e) => setFormData({ ...formData, expectedCloseDate: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
-                />
+                <label className="text-label block mb-1.5">تاریخ بسته شدن</label>
+                <input type="date" value={formData.expectedCloseDate || ''} onChange={(e) => setFormData({ ...formData, expectedCloseDate: e.target.value })} className="input" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">توضیحات</label>
-                <textarea
-                  value={formData.description || ''}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none"
-                  placeholder="توضیحات معامله..."
-                />
+                <label className="text-label block mb-1.5">توضیحات</label>
+                <textarea value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="input resize-none" placeholder="توضیحات معامله..." />
               </div>
             </div>
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-100 sticky bottom-0 bg-white rounded-b-3xl">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-6 py-3 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"
-              >
-                انصراف
-              </button>
-              <button
-                onClick={handleAddDeal}
-                className="px-6 py-3 text-sm font-medium text-white bg-gradient-to-l from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25"
-              >
-                ایجاد معامله
-              </button>
+            <div className="flex items-center justify-end gap-2 p-6 border-t border-gray-200 sticky bottom-0 bg-white rounded-b-xl">
+              <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
+              <button onClick={handleAddDeal} className="btn btn-primary px-4 py-2 text-sm">ایجاد معامله</button>
             </div>
           </div>
         </div>
