@@ -11,7 +11,11 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
-  Zap
+  Zap,
+  Calendar,
+  FileText,
+  Zap as ZapIcon,
+  Activity
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,6 +29,11 @@ const navItems = [
   { path: '/deals', icon: Briefcase, label: 'معاملات', badge: '5' },
   { path: '/tasks', icon: CheckSquare, label: 'وظایف', badge: '3' },
   { path: '/activities', icon: MessageSquare, label: 'فعالیت‌ها', badge: null },
+  { path: '/calendar', icon: Calendar, label: 'تقویم', badge: null },
+  { path: '/documents', icon: FileText, label: 'اسناد', badge: null },
+  { path: '/users', icon: Users, label: 'کاربران', badge: null },
+  { path: '/automation', icon: ZapIcon, label: 'اتوماسیون', badge: null },
+  { path: '/audit-log', icon: Activity, label: 'گزارش فعالیت', badge: null },
   { path: '/reports', icon: BarChart3, label: 'گزارشات', badge: null },
   { path: '/settings', icon: Settings, label: 'تنظیمات', badge: null },
 ];

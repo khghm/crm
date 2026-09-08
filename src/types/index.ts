@@ -1,3 +1,20 @@
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  password: string;
+  role: 'admin' | 'manager' | 'sales' | 'support';
+  avatar?: string;
+  position: string;
+  department: string;
+  bio?: string;
+  isActive: boolean;
+  createdAt: string;
+  lastLogin?: string;
+}
+
 export interface Customer {
   id: string;
   name: string;
@@ -16,6 +33,7 @@ export interface Customer {
   lifetimeValue?: number;
   source?: 'website' | 'referral' | 'social' | 'ads' | 'other';
   satisfaction?: number;
+  assignedTo?: string;
 }
 
 export interface Deal {
@@ -67,16 +85,7 @@ export interface Notification {
   type: 'info' | 'success' | 'warning' | 'error';
   read: boolean;
   date: string;
-  icon?: string;
-}
-
-export interface DashboardStats {
-  totalCustomers: number;
-  activeDeals: number;
-  totalRevenue: number;
-  conversionRate: number;
-  monthlyGrowth: number;
-  pendingTasks: number;
+  userId?: string;
 }
 
 export interface CalendarEvent {
@@ -88,4 +97,47 @@ export interface CalendarEvent {
   customerId?: string;
   customerName?: string;
   description?: string;
+  attendees?: string[];
+}
+
+export interface Document {
+  id: string;
+  name: string;
+  type: 'contract' | 'proposal' | 'invoice' | 'report' | 'other';
+  size: number;
+  uploadedAt: string;
+  uploadedBy: string;
+  relatedTo?: string;
+  relatedType?: 'customer' | 'deal';
+  url?: string;
+}
+
+export interface AutomationRule {
+  id: string;
+  name: string;
+  trigger: string;
+  action: string;
+  conditions: string[];
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  userId: string;
+  userName: string;
+  timestamp: string;
+  details?: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+  category: string;
+  createdAt: string;
 }
