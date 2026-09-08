@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Search, Filter, Download, Trash2 } from 'lucide-react';
+import { FileText, Search, Filter, Download, Trash2, Plus, X } from 'lucide-react';
 import { storage } from '../utils/storage';
 
 interface AuditLogEntry {
@@ -17,6 +17,12 @@ const AuditLog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEntity, setFilterEntity] = useState('all');
   const [filterAction, setFilterAction] = useState('all');
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    action: 'create',
+    entity: 'customer',
+    details: ''
+  });
 
   useEffect(() => {
     const savedLogs = storage.get<AuditLogEntry[]>('auditLogs', []);
@@ -78,6 +84,27 @@ const AuditLog: React.FC = () => {
     }
   };
 
+  const handleAddLog = () => {
+    const currentUser = storage.get<any>('currentUser', null);
+    const userName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'کاربر ناشناس';
+    
+    const newLog: AuditLogEntry = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      user: userName,
+      action: formData.action,
+      entity: formData.entity,
+      entityId: Date.now().toString(),
+      details: formData.details
+    };
+    
+    const updatedLogs = [newLog, ...logs];
+    setLogs(updatedLogs);
+    storage.set('auditLogs', updatedLogs);
+    setShowModal(false);
+    setFormData({ action: 'create', entity: 'customer', details: '' });
+  };
+
   const stats = {
     total: logs.length,
     today: logs.filter(l => new Date(l.timestamp).toDateString() === new Date().toDateString()).length,
@@ -97,6 +124,10 @@ const AuditLog: React.FC = () => {
           <p className="text-body-sm mt-1">تاریخچه تمام تغییرات در سیستم</p>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => setShowModal(true)} className="btn btn-primary">
+            <Plus size={16} />
+            <span>ثبت فعالیت</span>
+          </button>
           <button onClick={handleExportLogs} className="btn btn-secondary">
             <Download size={16} />
             <span>خروجی CSV</span>
@@ -228,6 +259,65 @@ const AuditLog: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Add Log Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in bg-white shadow-xl">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-heading-2">ثبت فعالیت جدید</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-label block mb-1.5">نوع عملیات</label>
+                <select
+                  value={formData.action}
+                  onChange={(e) => setFormData({ ...formData, action: e.target.value })}
+                  className="input"
+                >
+                  <option value="create">ایجاد</option>
+                  <option value="update">بروزرسانی</option>
+                  <option value="delete">حذف</option>
+                  <option value="login">ورود</option>
+                  <option value="logout">خروج</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">موجودیت</label>
+                <select
+                  value={formData.entity}
+                  onChange={(e) => setFormData({ ...formData, entity: e.target.value })}
+                  className="input"
+                >
+                  <option value="customer">مشتری</option>
+                  <option value="deal">معامله</option>
+                  <option value="task">وظیفه</option>
+                  <option value="user">کاربر</option>
+                  <option value="activity">فعالیت</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">جزئیات</label>
+                <textarea
+                  value={formData.details}
+                  onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                  rows={3}
+                  className="input resize-none"
+                  placeholder="توضیحات فعالیت..."
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-200 bg-white">
+              <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
+              <button onClick={handleAddLog} className="btn btn-primary px-4 py-2 text-sm">ثبت فعالیت</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
