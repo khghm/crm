@@ -54,29 +54,6 @@ export const auth = {
   }
 };
 
-// Audit Log
-export const auditLog = {
-  log: (action: string, entity: string, entityId: string, details?: string) => {
-    const logs = storage.get<any[]>('auditLogs', []);
-    const user = auth.getCurrentUser() as any;
-    const newLog = {
-      id: Date.now().toString(),
-      action,
-      entity,
-      entityId,
-      userId: user?.id || 'system',
-      userName: user ? `${user.firstName} ${user.lastName}` : 'سیستم',
-      timestamp: new Date().toISOString(),
-      details
-    };
-    storage.set('auditLogs', [newLog, ...logs].slice(0, 1000));
-  },
-
-  getLogs: () => {
-    return storage.get<any[]>('auditLogs', []);
-  }
-};
-
 // CSV Export/Import
 export const csvUtils = {
   exportToCSV: (data: any[], filename: string) => {
@@ -151,5 +128,31 @@ export const notifications = {
   getUnread: () => {
     const notifications = storage.get('notifications', []);
     return notifications.filter((n: any) => !n.read);
+  }
+};
+
+// Audit Log
+export const auditLog = {
+  log: (action: string, entity: string, entityId: string, details: string) => {
+    const logs = storage.get<any[]>('auditLogs', []);
+    const user = auth.getCurrentUser() as any;
+    const newLog = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      user: user ? `${user.firstName} ${user.lastName}` : 'سیستم',
+      action,
+      entity,
+      entityId,
+      details
+    };
+    storage.set('auditLogs', [newLog, ...logs].slice(0, 1000));
+  },
+
+  getLogs: () => {
+    return storage.get<any[]>('auditLogs', []);
+  },
+
+  clearLogs: () => {
+    storage.set('auditLogs', []);
   }
 };

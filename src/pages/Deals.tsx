@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Search, Calendar, X, MoreHorizontal, DollarSign, TrendingUp, LayoutGrid, List, Target, Zap } from 'lucide-react';
 import { mockDeals, mockCustomers } from '../data/mockData';
 import { Deal } from '../types';
+import { auditLog } from '../utils/storage';
 
 const stages = [
   { id: 'lead', title: 'سرنخ', color: '#94a3b8', bg: '#f1f5f9' },
@@ -39,6 +40,7 @@ const Deals: React.FC = () => {
       priority: formData.priority as Deal['priority']
     };
     setDeals([newDeal, ...deals]);
+    auditLog.log('create', 'deal', newDeal.id, `معامله "${formData.title}" ایجاد شد`);
     setShowModal(false);
     setFormData({ title: '', customerId: '', customerName: '', value: 0, stage: 'lead', probability: 20, expectedCloseDate: '', description: '', priority: 'medium' });
   };

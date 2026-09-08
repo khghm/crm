@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Search, Plus, Mail, Phone, Building2, Edit2, Trash2, Eye, X, MapPin, Grid, List, Download, Upload, Star } from 'lucide-react';
 import { mockCustomers } from '../data/mockData';
 import { Customer } from '../types';
+import { auditLog } from '../utils/storage';
 
 const Customers: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
@@ -48,6 +49,7 @@ const Customers: React.FC = () => {
   const handleSaveCustomer = () => {
     if (editingCustomer) {
       setCustomers(customers.map(c => c.id === editingCustomer.id ? { ...c, ...formData } as Customer : c));
+      auditLog.log('update', 'customer', editingCustomer.id, `مشتری ${formData.name} بروزرسانی شد`);
     } else {
       const newCustomer: Customer = {
         id: Date.now().toString(),
@@ -68,13 +70,16 @@ const Customers: React.FC = () => {
         satisfaction: 0
       };
       setCustomers([newCustomer, ...customers]);
+      auditLog.log('create', 'customer', newCustomer.id, `مشتری ${formData.name} ایجاد شد`);
     }
     setShowModal(false);
   };
 
   const handleDeleteCustomer = (id: string) => {
     if (confirm('آیا از حذف این مشتری اطمینان دارید؟')) {
+      const customer = customers.find(c => c.id === id);
       setCustomers(customers.filter(c => c.id !== id));
+      auditLog.log('delete', 'customer', id, `مشتری ${customer?.name} حذف شد`);
     }
   };
 

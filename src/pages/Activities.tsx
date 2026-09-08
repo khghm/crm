@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Search, Phone, Mail, Calendar, FileText, CheckCircle2, MessageSquare, File, X } from 'lucide-react';
 import { mockActivities, mockCustomers } from '../data/mockData';
 import { Activity } from '../types';
+import { auditLog } from '../utils/storage';
 
 const Activities: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>(mockActivities);
@@ -61,6 +62,7 @@ const Activities: React.FC = () => {
       createdBy: 'محمد رضوی'
     };
     setActivities([newActivity, ...activities]);
+    auditLog.log('create', 'activity', newActivity.id, `فعالیت "${formData.title}" ثبت شد`);
     setShowModal(false);
     setFormData({ type: 'call', title: '', description: '', customerId: '', customerName: '' });
   };

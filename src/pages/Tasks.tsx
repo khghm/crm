@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Search, CheckCircle2, Circle, Clock, AlertCircle, X, Calendar, User, Zap } from 'lucide-react';
 import { mockTasks } from '../data/mockData';
 import { Task } from '../types';
+import { auditLog } from '../utils/storage';
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
@@ -47,6 +48,7 @@ const Tasks: React.FC = () => {
     setTasks(tasks.map(t => {
       if (t.id === taskId) {
         const newStatus = t.status === 'completed' ? 'pending' : 'completed';
+        auditLog.log('update', 'task', taskId, `وضعیت وظیفه "${t.title}" به ${newStatus === 'completed' ? 'تکمیل شده' : 'در انتظار'} تغییر کرد`);
         return { ...t, status: newStatus as Task['status'] };
       }
       return t;
@@ -65,6 +67,7 @@ const Tasks: React.FC = () => {
       createdAt: new Date().toISOString().split('T')[0]
     };
     setTasks([newTask, ...tasks]);
+    auditLog.log('create', 'task', newTask.id, `وظیفه "${formData.title}" ایجاد شد`);
     setShowModal(false);
     setFormData({ title: '', description: '', dueDate: '', priority: 'medium', status: 'pending', assignedTo: '' });
   };
