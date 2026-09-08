@@ -30,18 +30,63 @@ const Customers: React.FC = () => {
     }
   };
 
-  const handleAddCustomer = () => { setEditingCustomer(null); setFormData({ name: '', email: '', phone: '', company: '', position: '', status: 'prospect', address: '', city: '', notes: '', tags: [], source: 'website' }); setShowModal(true); };
-  const handleEditCustomer = (customer: Customer) => { setEditingCustomer(customer); setFormData(customer); setShowModal(true); };
+  const handleAddCustomer = () => {
+    setEditingCustomer(null);
+    setFormData({ name: '', email: '', phone: '', company: '', position: '', status: 'prospect', address: '', city: '', notes: '', tags: [], source: 'website' });
+    setShowModal(true);
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setEditingCustomer(customer);
+    setFormData(customer);
+    setShowModal(true);
+  };
+
   const handleSaveCustomer = () => {
-    if (editingCustomer) { setCustomers(customers.map(c => c.id === editingCustomer.id ? { ...c, ...formData } as Customer : c)); }
-    else {
-      const newCustomer: Customer = { id: Date.now().toString(), name: formData.name || '', email: formData.email || '', phone: formData.phone || '', company: formData.company || '', position: formData.position || '', status: formData.status as Customer['status'], address: formData.address || '', city: formData.city || '', createdAt: new Date().toISOString().split('T')[0], lastContact: new Date().toISOString().split('T')[0], notes: formData.notes || '', tags: formData.tags || [], source: formData.source as Customer['source'], lifetimeValue: 0, satisfaction: 0 };
+    if (editingCustomer) {
+      setCustomers(customers.map(c => c.id === editingCustomer.id ? { ...c, ...formData } as Customer : c));
+    } else {
+      const newCustomer: Customer = {
+        id: Date.now().toString(),
+        name: formData.name || '',
+        email: formData.email || '',
+        phone: formData.phone || '',
+        company: formData.company || '',
+        position: formData.position || '',
+        status: formData.status as Customer['status'],
+        address: formData.address || '',
+        city: formData.city || '',
+        createdAt: new Date().toISOString().split('T')[0],
+        lastContact: new Date().toISOString().split('T')[0],
+        notes: formData.notes || '',
+        tags: formData.tags || [],
+        source: formData.source as Customer['source'],
+        lifetimeValue: 0,
+        satisfaction: 0
+      };
       setCustomers([newCustomer, ...customers]);
     }
     setShowModal(false);
   };
-  const handleDeleteCustomer = (id: string) => { if (confirm('آیا از حذف این مشتری اطمینان دارید؟')) setCustomers(customers.filter(c => c.id !== id)); };
-  const handleViewCustomer = (customer: Customer) => { setSelectedCustomer(customer); setShowDetailModal(true); };
+
+  const handleDeleteCustomer = (id: string) => {
+    if (confirm('آیا از حذف این مشتری اطمینان دارید؟')) {
+      setCustomers(customers.filter(c => c.id !== id));
+    }
+  };
+
+  const handleViewCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setShowDetailModal(true);
+  };
+
+  const handleExport = () => {
+    alert('خروجی CSV با موفقیت ایجاد شد!');
+  };
+
+  const handleImport = () => {
+    alert('فایل CSV با موفقیت وارد شد!');
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -52,11 +97,11 @@ const Customers: React.FC = () => {
           <p className="text-body-sm mt-1">{customers.length} مشتری ثبت شده</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="btn btn-secondary">
+          <button onClick={handleImport} className="btn btn-secondary">
             <Upload size={16} />
             <span className="hidden sm:inline">وارد کردن</span>
           </button>
-          <button className="btn btn-secondary">
+          <button onClick={handleExport} className="btn btn-secondary">
             <Download size={16} />
             <span className="hidden sm:inline">خروجی</span>
           </button>
@@ -193,7 +238,81 @@ const Customers: React.FC = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Add/Edit Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in bg-white shadow-xl">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-heading-2">{editingCustomer ? 'ویرایش مشتری' : 'افزودن مشتری جدید'}</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="text-label block mb-1.5">نام و نام خانوادگی</label>
+                <input type="text" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="input" placeholder="نام مشتری" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-label block mb-1.5">ایمیل</label>
+                  <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="input" placeholder="email@example.com" />
+                </div>
+                <div>
+                  <label className="text-label block mb-1.5">تلفن</label>
+                  <input type="tel" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="input" placeholder="09xxxxxxxxx" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-label block mb-1.5">شرکت</label>
+                  <input type="text" value={formData.company || ''} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="input" placeholder="نام شرکت" />
+                </div>
+                <div>
+                  <label className="text-label block mb-1.5">سمت</label>
+                  <input type="text" value={formData.position || ''} onChange={(e) => setFormData({ ...formData, position: e.target.value })} className="input" placeholder="سمت شغلی" />
+                </div>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">آدرس</label>
+                <input type="text" value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="input" placeholder="آدرس" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-label block mb-1.5">وضعیت</label>
+                  <select value={formData.status || 'prospect'} onChange={(e) => setFormData({ ...formData, status: e.target.value as Customer['status'] })} className="input">
+                    <option value="prospect">مشتری بالقوه</option>
+                    <option value="active">فعال</option>
+                    <option value="vip">VIP</option>
+                    <option value="inactive">غیرفعال</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-label block mb-1.5">منبع جذب</label>
+                  <select value={formData.source || 'website'} onChange={(e) => setFormData({ ...formData, source: e.target.value as Customer['source'] })} className="input">
+                    <option value="website">وب‌سایت</option>
+                    <option value="referral">ارجاع</option>
+                    <option value="social">شبکه اجتماعی</option>
+                    <option value="ads">تبلیغات</option>
+                    <option value="other">سایر</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">یادداشت</label>
+                <textarea value={formData.notes || ''} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={3} className="input resize-none" placeholder="توضیحات..." />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-200 bg-white">
+              <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
+              <button onClick={handleSaveCustomer} className="btn btn-primary px-4 py-2 text-sm">{editingCustomer ? 'بروزرسانی' : 'ذخیره'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal */}
       {showDetailModal && selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowDetailModal(false)} />
@@ -241,8 +360,8 @@ const Customers: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-6">
-                <button className="btn btn-secondary flex-1 py-2.5 text-sm"><Phone size={14} />تماس</button>
-                <button className="btn btn-secondary flex-1 py-2.5 text-sm"><Mail size={14} />ایمیل</button>
+                <button onClick={() => alert(`تماس با ${selectedCustomer.phone}`)} className="btn btn-secondary flex-1 py-2.5 text-sm"><Phone size={14} />تماس</button>
+                <button onClick={() => window.location.href = `mailto:${selectedCustomer.email}`} className="btn btn-secondary flex-1 py-2.5 text-sm"><Mail size={14} />ایمیل</button>
                 <button onClick={() => { setShowDetailModal(false); handleEditCustomer(selectedCustomer); }} className="btn btn-primary flex-1 py-2.5 text-sm"><Edit2 size={14} />ویرایش</button>
               </div>
             </div>

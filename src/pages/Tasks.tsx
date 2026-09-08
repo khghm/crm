@@ -54,9 +54,19 @@ const Tasks: React.FC = () => {
   };
 
   const handleAddTask = () => {
-    const newTask: Task = { id: Date.now().toString(), title: formData.title || '', description: formData.description || '', dueDate: formData.dueDate || '', priority: (formData.priority as Task['priority']) || 'medium', status: (formData.status as Task['status']) || 'pending', assignedTo: formData.assignedTo || '', createdAt: new Date().toISOString().split('T')[0] };
+    const newTask: Task = {
+      id: Date.now().toString(),
+      title: formData.title || '',
+      description: formData.description || '',
+      dueDate: formData.dueDate || '',
+      priority: (formData.priority as Task['priority']) || 'medium',
+      status: (formData.status as Task['status']) || 'pending',
+      assignedTo: formData.assignedTo || '',
+      createdAt: new Date().toISOString().split('T')[0]
+    };
     setTasks([newTask, ...tasks]);
     setShowModal(false);
+    setFormData({ title: '', description: '', dueDate: '', priority: 'medium', status: 'pending', assignedTo: '' });
   };
 
   const stats = {
@@ -167,6 +177,54 @@ const Tasks: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Add Task Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in bg-white shadow-xl">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-heading-2">افزودن وظیفه جدید</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-label block mb-1.5">عنوان وظیفه</label>
+                <input type="text" value={formData.title || ''} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" placeholder="عنوان وظیفه" />
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">توضیحات</label>
+                <textarea value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="input resize-none" placeholder="توضیحات..." />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-label block mb-1.5">تاریخ سررسید</label>
+                  <input type="date" value={formData.dueDate || ''} onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })} className="input" />
+                </div>
+                <div>
+                  <label className="text-label block mb-1.5">اولویت</label>
+                  <select value={formData.priority || 'medium'} onChange={(e) => setFormData({ ...formData, priority: e.target.value as Task['priority'] })} className="input">
+                    <option value="low">کم</option>
+                    <option value="medium">متوسط</option>
+                    <option value="high">بالا</option>
+                    <option value="urgent">فوری</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">محول به</label>
+                <input type="text" value={formData.assignedTo || ''} onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })} className="input" placeholder="نام مسئول" />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-200 bg-white">
+              <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
+              <button onClick={handleAddTask} className="btn btn-primary px-4 py-2 text-sm">ایجاد وظیفه</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

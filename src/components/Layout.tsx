@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { Search, Bell, Menu, X, Command, Plus } from 'lucide-react';
+import { Search, Bell, Menu, Command, Plus } from 'lucide-react';
 import { mockNotifications } from '../data/mockData';
 
 const Layout: React.FC = () => {
@@ -56,8 +56,11 @@ const Layout: React.FC = () => {
 
       {/* Main Content - Fixed margin to prevent overlap */}
       <main 
-        className={`transition-all duration-300 ${collapsed ? 'lg:mr-[72px]' : 'lg:mr-[280px]'} pt-16 lg:pt-0`}
-        style={{ minHeight: '100vh' }}
+        className="transition-all duration-300 pt-16 lg:pt-0"
+        style={{ 
+          marginRight: collapsed ? '72px' : '280px',
+          minHeight: '100vh'
+        }}
       >
         {/* Top Bar */}
         <header className="hidden lg:flex items-center justify-between bg-white border-b border-slate-200 px-6 h-16 sticky top-0 z-30">

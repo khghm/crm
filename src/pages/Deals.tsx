@@ -25,9 +25,22 @@ const Deals: React.FC = () => {
   const totalPipelineValue = deals.filter(d => !['closed_won', 'closed_lost'].includes(d.stage)).reduce((sum, d) => sum + d.value, 0);
 
   const handleAddDeal = () => {
-    const newDeal: Deal = { id: Date.now().toString(), title: formData.title || '', customerId: formData.customerId || '', customerName: formData.customerName || '', value: formData.value || 0, stage: (formData.stage as Deal['stage']) || 'lead', probability: formData.probability || 20, expectedCloseDate: formData.expectedCloseDate || '', createdAt: new Date().toISOString().split('T')[0], description: formData.description || '', priority: formData.priority as Deal['priority'] };
+    const newDeal: Deal = {
+      id: Date.now().toString(),
+      title: formData.title || '',
+      customerId: formData.customerId || '',
+      customerName: formData.customerName || '',
+      value: formData.value || 0,
+      stage: (formData.stage as Deal['stage']) || 'lead',
+      probability: formData.probability || 20,
+      expectedCloseDate: formData.expectedCloseDate || '',
+      createdAt: new Date().toISOString().split('T')[0],
+      description: formData.description || '',
+      priority: formData.priority as Deal['priority']
+    };
     setDeals([newDeal, ...deals]);
     setShowModal(false);
+    setFormData({ title: '', customerId: '', customerName: '', value: 0, stage: 'lead', probability: 20, expectedCloseDate: '', description: '', priority: 'medium' });
   };
 
   const getStageObj = (stage: string) => stages.find(s => s.id === stage) || stages[0];
@@ -195,6 +208,75 @@ const Deals: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Add Deal Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in bg-white shadow-xl">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-heading-2">افزودن معامله جدید</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="text-label block mb-1.5">عنوان معامله</label>
+                <input type="text" value={formData.title || ''} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" placeholder="عنوان معامله" />
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">مشتری</label>
+                <select value={formData.customerId || ''} onChange={(e) => {
+                  const customer = mockCustomers.find(c => c.id === e.target.value);
+                  setFormData({ ...formData, customerId: e.target.value, customerName: customer?.name || '' });
+                }} className="input">
+                  <option value="">انتخاب مشتری</option>
+                  {mockCustomers.map(c => (<option key={c.id} value={c.id}>{c.name} - {c.company}</option>))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-label block mb-1.5">مبلغ (تومان)</label>
+                  <input type="number" value={formData.value || ''} onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })} className="input" placeholder="0" />
+                </div>
+                <div>
+                  <label className="text-label block mb-1.5">احتمال (%)</label>
+                  <input type="number" value={formData.probability || ''} onChange={(e) => setFormData({ ...formData, probability: Number(e.target.value) })} className="input" placeholder="20" min="0" max="100" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-label block mb-1.5">مرحله</label>
+                  <select value={formData.stage || 'lead'} onChange={(e) => setFormData({ ...formData, stage: e.target.value as Deal['stage'] })} className="input">
+                    {stages.map(s => (<option key={s.id} value={s.id}>{s.title}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-label block mb-1.5">اولویت</label>
+                  <select value={formData.priority || 'medium'} onChange={(e) => setFormData({ ...formData, priority: e.target.value as Deal['priority'] })} className="input">
+                    <option value="low">کم</option>
+                    <option value="medium">متوسط</option>
+                    <option value="high">بالا</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">تاریخ بسته شدن</label>
+                <input type="date" value={formData.expectedCloseDate || ''} onChange={(e) => setFormData({ ...formData, expectedCloseDate: e.target.value })} className="input" />
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">توضیحات</label>
+                <textarea value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="input resize-none" placeholder="توضیحات معامله..." />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-200 bg-white">
+              <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
+              <button onClick={handleAddDeal} className="btn btn-primary px-4 py-2 text-sm">ایجاد معامله</button>
+            </div>
           </div>
         </div>
       )}
