@@ -19,13 +19,7 @@ const Tasks: React.FC = () => {
   });
 
   const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'badge-red';
-      case 'high': return 'badge-amber';
-      case 'medium': return 'badge-cyan';
-      case 'low': return 'badge-neutral';
-      default: return 'badge-neutral';
-    }
+    switch (priority) { case 'urgent': return 'badge-error'; case 'high': return 'badge-warning'; case 'medium': return 'badge-brand'; case 'low': return 'badge-gray'; default: return 'badge-gray'; }
   };
 
   const getPriorityLabel = (priority: string) => {
@@ -34,15 +28,15 @@ const Tasks: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle2 size={18} style={{ color: 'var(--neon-green)' }} />;
-      case 'in_progress': return <Clock size={18} style={{ color: 'var(--neon-cyan)' }} />;
-      case 'cancelled': return <AlertCircle size={18} style={{ color: 'var(--neon-red)' }} />;
-      default: return <Circle size={18} className="text-white/20" />;
+      case 'completed': return <CheckCircle2 size={18} className="text-emerald-500" />;
+      case 'in_progress': return <Clock size={18} className="text-blue-500" />;
+      case 'cancelled': return <AlertCircle size={18} className="text-red-500" />;
+      default: return <Circle size={18} className="text-slate-300" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) { case 'pending': return 'badge-neutral'; case 'in_progress': return 'badge-cyan'; case 'completed': return 'badge-green'; case 'cancelled': return 'badge-red'; default: return 'badge-neutral'; }
+    switch (status) { case 'pending': return 'badge-gray'; case 'in_progress': return 'badge-brand'; case 'completed': return 'badge-success'; case 'cancelled': return 'badge-error'; default: return 'badge-gray'; }
   };
 
   const getStatusLabel = (status: string) => {
@@ -76,56 +70,56 @@ const Tasks: React.FC = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">وظایف</h1>
-          <p className="text-sm text-white/40">{stats.total} وظیفه ثبت شده</p>
+          <h1 className="text-heading-1">وظایف</h1>
+          <p className="text-body-sm mt-1">{stats.total} وظیفه ثبت شده</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-premium btn-primary-premium">
+        <button onClick={() => setShowModal(true)} className="btn btn-primary">
           <Plus size={16} /><span>وظیفه جدید</span>
         </button>
       </div>
 
       {/* Progress */}
-      <div className="glass-card p-5">
+      <div className="card p-5">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-white/70">پیشرفت کلی</span>
-          <span className="text-sm font-bold num" style={{ color: 'var(--neon-green)' }}>{Math.round((stats.completed / stats.total) * 100)}%</span>
+          <span className="text-sm font-medium text-slate-700">پیشرفت کلی</span>
+          <span className="text-sm font-bold text-emerald-600 num">{Math.round((stats.completed / stats.total) * 100)}%</span>
         </div>
-        <div className="w-full rounded-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
           <div className="h-full flex">
-            <div className="h-full transition-all duration-500" style={{ width: `${(stats.completed / stats.total) * 100}%`, background: 'var(--neon-green)', boxShadow: '0 0 10px var(--neon-green)' }}></div>
-            <div className="h-full transition-all duration-500" style={{ width: `${(stats.inProgress / stats.total) * 100}%`, background: 'var(--neon-cyan)', boxShadow: '0 0 10px var(--neon-cyan)' }}></div>
+            <div className="h-full transition-all duration-500 bg-emerald-500" style={{ width: `${(stats.completed / stats.total) * 100}%` }}></div>
+            <div className="h-full transition-all duration-500 bg-blue-500" style={{ width: `${(stats.inProgress / stats.total) * 100}%` }}></div>
           </div>
         </div>
         <div className="flex items-center gap-4 mt-3">
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-green)', boxShadow: '0 0 6px var(--neon-green)' }}></div>
-            <span className="text-[10px] text-white/50">تکمیل شده ({stats.completed})</span>
+            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+            <span className="text-[10px] text-slate-500">تکمیل شده ({stats.completed})</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-cyan)', boxShadow: '0 0 6px var(--neon-cyan)' }}></div>
-            <span className="text-[10px] text-white/50">در حال انجام ({stats.inProgress})</span>
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span className="text-[10px] text-slate-500">در حال انجام ({stats.inProgress})</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-white/20"></div>
-            <span className="text-[10px] text-white/50">در انتظار ({stats.pending})</span>
+            <div className="w-2 h-2 bg-slate-200 rounded-full"></div>
+            <span className="text-[10px] text-slate-500">در انتظار ({stats.pending})</span>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="glass-card p-4">
+      <div className="card p-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-            <input type="text" placeholder="جستجوی وظایف..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-premium pr-11" />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input type="text" placeholder="جستجوی وظایف..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input pr-10" />
           </div>
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-premium w-auto">
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input w-auto">
             <option value="all">همه وضعیت‌ها</option>
             <option value="pending">در انتظار</option>
             <option value="in_progress">در حال انجام</option>
             <option value="completed">تکمیل شده</option>
           </select>
-          <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)} className="input-premium w-auto">
+          <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)} className="input w-auto">
             <option value="all">همه اولویت‌ها</option>
             <option value="urgent">فوری</option>
             <option value="high">بالا</option>
@@ -138,7 +132,7 @@ const Tasks: React.FC = () => {
       {/* Task List */}
       <div className="space-y-2 stagger">
         {filteredTasks.map((task) => (
-          <div key={task.id} className={`glass-card p-4 ${task.status === 'completed' ? 'opacity-50' : ''}`}>
+          <div key={task.id} className={`card card-hover p-4 ${task.status === 'completed' ? 'opacity-50' : ''}`}>
             <div className="flex items-start gap-3">
               <button onClick={() => toggleTaskStatus(task.id)} className="mt-0.5 flex-shrink-0 hover:scale-110 transition-transform">
                 {getStatusIcon(task.status)}
@@ -146,30 +140,30 @@ const Tasks: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className={`text-sm font-medium text-white ${task.status === 'completed' ? 'line-through text-white/40' : ''}`}>{task.title}</h3>
-                    <p className="text-xs text-white/40 mt-0.5">{task.description}</p>
+                    <h3 className={`text-sm font-medium text-slate-800 ${task.status === 'completed' ? 'line-through text-slate-500' : ''}`}>{task.title}</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">{task.description}</p>
                   </div>
-                  <span className={`badge-premium ${getPriorityBadge(task.priority)}`}>{getPriorityLabel(task.priority)}</span>
+                  <span className={`badge ${getPriorityBadge(task.priority)}`}>{getPriorityLabel(task.priority)}</span>
                 </div>
                 <div className="flex items-center gap-3 mt-2.5">
-                  <div className="flex items-center gap-1 text-[10px] text-white/40">
+                  <div className="flex items-center gap-1 text-[10px] text-slate-500">
                     <Calendar size={11} />
                     <span>{new Date(task.dueDate).toLocaleDateString('fa-IR')}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-white/40">
+                  <div className="flex items-center gap-1 text-[10px] text-slate-500">
                     <User size={11} />
                     <span>{task.assignedTo}</span>
                   </div>
-                  <span className={`badge-premium ${getStatusBadge(task.status)}`}>{getStatusLabel(task.status)}</span>
+                  <span className={`badge ${getStatusBadge(task.status)}`}>{getStatusLabel(task.status)}</span>
                 </div>
               </div>
             </div>
           </div>
         ))}
         {filteredTasks.length === 0 && (
-          <div className="text-center py-16 glass-card">
-            <Zap size={40} className="mx-auto text-white/20 mb-3" />
-            <p className="text-sm text-white/40">وظیفه‌ای یافت نشد</p>
+          <div className="text-center py-16 card">
+            <Zap size={40} className="mx-auto text-slate-300 mb-3" />
+            <p className="text-sm text-slate-500">وظیفه‌ای یافت نشد</p>
           </div>
         )}
       </div>

@@ -4,7 +4,7 @@ import { mockActivities, mockCustomers } from '../data/mockData';
 import { Activity } from '../types';
 
 const Activities: React.FC = () => {
-  const [activities, setActivities] = useState<Activity[]>(mockActivities);
+  const [activities] = useState<Activity[]>(mockActivities);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -16,13 +16,13 @@ const Activities: React.FC = () => {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'call': return <Phone size={14} style={{ color: 'var(--neon-cyan)' }} />;
-      case 'email': return <Mail size={14} style={{ color: 'var(--neon-purple)' }} />;
-      case 'meeting': return <Calendar size={14} style={{ color: 'var(--neon-green)' }} />;
-      case 'note': return <FileText size={14} style={{ color: 'var(--neon-amber)' }} />;
-      case 'task': return <CheckCircle2 size={14} style={{ color: 'var(--neon-pink)' }} />;
-      case 'sms': return <MessageSquare size={14} style={{ color: 'var(--neon-pink)' }} />;
-      case 'document': return <File size={14} style={{ color: 'var(--neon-blue)' }} />;
+      case 'call': return <Phone size={14} className="text-blue-500" />;
+      case 'email': return <Mail size={14} className="text-purple-500" />;
+      case 'meeting': return <Calendar size={14} className="text-emerald-500" />;
+      case 'note': return <FileText size={14} className="text-amber-500" />;
+      case 'task': return <CheckCircle2 size={14} className="text-pink-500" />;
+      case 'sms': return <MessageSquare size={14} className="text-pink-500" />;
+      case 'document': return <File size={14} className="text-indigo-500" />;
       default: return <FileText size={14} />;
     }
   };
@@ -42,10 +42,10 @@ const Activities: React.FC = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">فعالیت‌ها</h1>
-          <p className="text-sm text-white/40">تایم‌لاین تمام تعاملات و فعالیت‌ها</p>
+          <h1 className="text-heading-1">فعالیت‌ها</h1>
+          <p className="text-body-sm mt-1">تایم‌لاین تمام تعاملات و فعالیت‌ها</p>
         </div>
-        <button className="btn-premium btn-primary-premium">
+        <button className="btn btn-primary">
           <Plus size={16} /><span>ثبت فعالیت</span>
         </button>
       </div>
@@ -59,13 +59,9 @@ const Activities: React.FC = () => {
           <button key={item.type} onClick={() => setFilterType(item.type)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               filterType === item.type
-                ? 'text-cyan-400'
-                : 'text-white/50 hover:text-white/80'
-            }`}
-            style={{
-              background: filterType === item.type ? 'rgba(0,217,255,0.1)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${filterType === item.type ? 'rgba(0,217,255,0.2)' : 'rgba(255,255,255,0.1)'}`
-            }}>
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+            }`}>
             {item.label}
           </button>
         ))}
@@ -73,8 +69,8 @@ const Activities: React.FC = () => {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-        <input type="text" placeholder="جستجو..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-premium pr-11" />
+        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+        <input type="text" placeholder="جستجو..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input pr-10" />
       </div>
 
       {/* Timeline */}
@@ -82,36 +78,36 @@ const Activities: React.FC = () => {
         {Object.entries(groupedActivities).map(([date, dateActivities]) => (
           <div key={date}>
             <div className="flex items-center gap-3 mb-4">
-              <h3 className="text-xs font-bold text-white/60 uppercase tracking-wider">{date}</h3>
-              <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.1), transparent)' }}></div>
-              <span className="text-[10px] text-white/30">{dateActivities.length} فعالیت</span>
+              <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider">{date}</h3>
+              <div className="flex-1 h-px bg-slate-200"></div>
+              <span className="text-[10px] text-slate-400">{dateActivities.length} فعالیت</span>
             </div>
-            <div className="space-y-2 mr-4 border-r-2 border-white/5 pr-6">
+            <div className="space-y-2 mr-4 border-r-2 border-slate-100 pr-6">
               {dateActivities.map((activity) => (
                 <div key={activity.id} className="relative">
-                  <div className="absolute -right-[31px] top-4 w-3 h-3 rounded-full border-2" style={{ borderColor: 'var(--neon-cyan)', background: 'var(--bg-primary)', boxShadow: '0 0 8px var(--neon-cyan)' }}></div>
-                  <div className="glass-card p-4">
+                  <div className="absolute -right-[31px] top-4 w-3 h-3 bg-white border-2 border-blue-400 rounded-full"></div>
+                  <div className="card card-hover p-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-50">
                         {getActivityIcon(activity.type)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <div className="flex items-center gap-2 mb-0.5">
-                              <h4 className="text-sm font-medium text-white">{activity.title}</h4>
-                              <span className="badge-premium badge-neutral">{getActivityLabel(activity.type)}</span>
+                              <h4 className="text-sm font-medium text-slate-800">{activity.title}</h4>
+                              <span className="badge badge-gray">{getActivityLabel(activity.type)}</span>
                             </div>
-                            <p className="text-xs text-white/40">{activity.description}</p>
+                            <p className="text-xs text-slate-500">{activity.description}</p>
                           </div>
-                          <span className="text-[10px] text-white/30 flex-shrink-0">
+                          <span className="text-[10px] text-slate-400 flex-shrink-0">
                             {new Date(activity.date).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-2">
                           {activity.customerName && (
-                            <div className="flex items-center gap-1 text-[10px] text-white/40">
-                              <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{ background: 'var(--gradient-primary)' }}>
+                            <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                              <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' }}>
                                 {activity.customerName.charAt(0)}
                               </span>
                               <span>{activity.customerName}</span>
