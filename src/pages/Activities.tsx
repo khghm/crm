@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-import { Phone, Mail, Calendar, FileText, CheckCircle2, MessageSquare, File, Plus, Search } from 'lucide-react';
+import { Plus, Search, Phone, Mail, Calendar, FileText, CheckCircle2, MessageSquare, File, X } from 'lucide-react';
 import { mockActivities, mockCustomers } from '../data/mockData';
 import { Activity } from '../types';
 
 const Activities: React.FC = () => {
-  const [activities] = useState<Activity[]>(mockActivities);
+  const [activities, setActivities] = useState<Activity[]>(mockActivities);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState<Partial<Activity>>({
+    type: 'call',
+    title: '',
+    description: '',
+    customerId: '',
+    customerName: ''
+  });
 
   const filteredActivities = activities.filter(a => {
     const matchesSearch = a.title.includes(searchTerm) || a.description.includes(searchTerm) || (a.customerName || '').includes(searchTerm);
@@ -28,7 +36,33 @@ const Activities: React.FC = () => {
   };
 
   const getActivityLabel = (type: string) => {
-    switch (type) { case 'call': return 'تماس'; case 'email': return 'ایمیل'; case 'meeting': return 'جلسه'; case 'note': return 'یادداشت'; case 'task': return 'وظیفه'; case 'sms': return 'پیامک'; case 'document': return 'سند'; default: return type; }
+    switch (type) {
+      case 'call': return 'تماس';
+      case 'email': return 'ایمیل';
+      case 'meeting': return 'جلسه';
+      case 'note': return 'یادداشت';
+      case 'task': return 'وظیفه';
+      case 'sms': return 'پیامک';
+      case 'document': return 'سند';
+      default: return type;
+    }
+  };
+
+  const handleAddActivity = () => {
+    const customer = mockCustomers.find(c => c.id === formData.customerId);
+    const newActivity: Activity = {
+      id: Date.now().toString(),
+      type: (formData.type as Activity['type']) || 'note',
+      title: formData.title || '',
+      description: formData.description || '',
+      customerId: formData.customerId || '',
+      customerName: customer?.name || formData.customerName || '',
+      date: new Date().toISOString(),
+      createdBy: 'محمد رضوی'
+    };
+    setActivities([newActivity, ...activities]);
+    setShowModal(false);
+    setFormData({ type: 'call', title: '', description: '', customerId: '', customerName: '' });
   };
 
   const groupedActivities = filteredActivities.reduce((groups, activity) => {
@@ -45,7 +79,7 @@ const Activities: React.FC = () => {
           <h1 className="text-heading-1">فعالیت‌ها</h1>
           <p className="text-body-sm mt-1">تایم‌لاین تمام تعاملات و فعالیت‌ها</p>
         </div>
-        <button className="btn btn-primary">
+        <button onClick={() => setShowModal(true)} className="btn btn-primary">
           <Plus size={16} /><span>ثبت فعالیت</span>
         </button>
       </div>
@@ -123,6 +157,63 @@ const Activities: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Add Activity Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in bg-white shadow-xl">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-heading-2">ثبت فعالیت جدید</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-label block mb-2">نوع فعالیت</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { type: 'call', icon: Phone, label: 'تماس' },
+                    { type: 'email', icon: Mail, label: 'ایمیل' },
+                    { type: 'meeting', icon: Calendar, label: 'جلسه' },
+                    { type: 'note', icon: FileText, label: 'یادداشت' },
+                  ].map((item) => (
+                    <button key={item.type} onClick={() => setFormData({ ...formData, type: item.type as Activity['type'] })}
+                      className={`p-3 rounded-lg border text-center transition-all ${
+                        formData.type === item.type
+                          ? 'border-blue-300 bg-blue-50 text-blue-700'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}>
+                      <item.icon size={16} className="mx-auto mb-1" />
+                      <span className="text-[11px] font-medium">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">عنوان</label>
+                <input type="text" value={formData.title || ''} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" placeholder="عنوان فعالیت" />
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">مشتری</label>
+                <select value={formData.customerId || ''} onChange={(e) => setFormData({ ...formData, customerId: e.target.value })} className="input">
+                  <option value="">بدون مشتری</option>
+                  {mockCustomers.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                </select>
+              </div>
+              <div>
+                <label className="text-label block mb-1.5">توضیحات</label>
+                <textarea value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="input resize-none" placeholder="توضیحات..." />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-200 bg-white">
+              <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
+              <button onClick={handleAddActivity} className="btn btn-primary px-4 py-2 text-sm">ثبت فعالیت</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,10 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Bell, Shield, Palette, Save, Key, Monitor, Smartphone, Mail, Moon, Sun, Camera, Check } from 'lucide-react';
+
+interface SettingsState {
+  profile: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    position: string;
+    department: string;
+    bio: string;
+  };
+  notifications: {
+    email: boolean;
+    push: boolean;
+    sms: boolean;
+    dealUpdates: boolean;
+    taskReminders: boolean;
+    newCustomers: boolean;
+  };
+  appearance: {
+    theme: string;
+    language: string;
+    dateFormat: string;
+  };
+}
+
+const defaultSettings: SettingsState = {
+  profile: {
+    firstName: 'محمد',
+    lastName: 'رضوی',
+    email: 'm.rezavi@company.com',
+    phone: '09121234567',
+    position: 'مدیر فروش',
+    department: 'فروش',
+    bio: 'مدیر فروش با بیش از ۵ سال تجربه'
+  },
+  notifications: {
+    email: true,
+    push: true,
+    sms: false,
+    dealUpdates: true,
+    taskReminders: true,
+    newCustomers: true
+  },
+  appearance: {
+    theme: 'light',
+    language: 'فارسی',
+    dateFormat: 'شمسی (۱۴۰۳/۰۱/۱۵)'
+  }
+};
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
-  const [theme, setTheme] = useState('light');
-  const [notifications, setNotifications] = useState({ email: true, push: true, sms: false, dealUpdates: true, taskReminders: true, newCustomers: true });
+  const [settings, setSettings] = useState<SettingsState>(() => {
+    const saved = localStorage.getItem('crm_settings');
+    return saved ? JSON.parse(saved) : defaultSettings;
+  });
+  const [saveMessage, setSaveMessage] = useState('');
 
   const tabs = [
     { id: 'profile', label: 'پروفایل', icon: User },
@@ -12,6 +65,12 @@ const Settings: React.FC = () => {
     { id: 'security', label: 'امنیت', icon: Shield },
     { id: 'appearance', label: 'ظاهر', icon: Palette },
   ];
+
+  const handleSave = () => {
+    localStorage.setItem('crm_settings', JSON.stringify(settings));
+    setSaveMessage('تنظیمات با موفقیت ذخیره شد');
+    setTimeout(() => setSaveMessage(''), 3000);
+  };
 
   const Toggle = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => (
     <button onClick={onChange} className={`w-11 h-6 rounded-full transition-colors relative ${enabled ? 'bg-blue-500' : 'bg-slate-300'}`}>
@@ -25,6 +84,13 @@ const Settings: React.FC = () => {
         <h1 className="text-heading-1">تنظیمات</h1>
         <p className="text-body-sm mt-1">مدیریت حساب کاربری و تنظیمات سیستم</p>
       </div>
+
+      {saveMessage && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-center gap-2 animate-fade-in">
+          <Check size={18} />
+          <span className="text-sm font-medium">{saveMessage}</span>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-64 flex-shrink-0">
@@ -50,14 +116,16 @@ const Settings: React.FC = () => {
                 </div>
                 <div className="relative flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold border-2 border-white/30 backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.2)' }}>م</div>
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold border-2 border-white/30 backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                      {settings.profile.firstName.charAt(0)}
+                    </div>
                     <button className="absolute -bottom-1 -left-1 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
                       <Camera size={12} className="text-blue-600" />
                     </button>
                   </div>
                   <div className="text-white">
-                    <h2 className="text-lg font-bold">محمد رضوی</h2>
-                    <p className="text-sm opacity-90">مدیر فروش</p>
+                    <h2 className="text-lg font-bold">{settings.profile.firstName} {settings.profile.lastName}</h2>
+                    <p className="text-sm opacity-90">{settings.profile.position}</p>
                   </div>
                 </div>
               </div>
@@ -65,27 +133,27 @@ const Settings: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="text-label block mb-1.5">نام</label>
-                    <input type="text" defaultValue="محمد" className="input" />
+                    <input type="text" value={settings.profile.firstName} onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, firstName: e.target.value } })} className="input" />
                   </div>
                   <div>
                     <label className="text-label block mb-1.5">نام خانوادگی</label>
-                    <input type="text" defaultValue="رضوی" className="input" />
+                    <input type="text" value={settings.profile.lastName} onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, lastName: e.target.value } })} className="input" />
                   </div>
                   <div>
                     <label className="text-label block mb-1.5">ایمیل</label>
-                    <input type="email" defaultValue="m.rezavi@company.com" className="input" />
+                    <input type="email" value={settings.profile.email} onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, email: e.target.value } })} className="input" />
                   </div>
                   <div>
                     <label className="text-label block mb-1.5">تلفن</label>
-                    <input type="tel" defaultValue="09121234567" className="input" />
+                    <input type="tel" value={settings.profile.phone} onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, phone: e.target.value } })} className="input" />
                   </div>
                   <div>
                     <label className="text-label block mb-1.5">سمت</label>
-                    <input type="text" defaultValue="مدیر فروش" className="input" />
+                    <input type="text" value={settings.profile.position} onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, position: e.target.value } })} className="input" />
                   </div>
                   <div>
                     <label className="text-label block mb-1.5">دپارتمان</label>
-                    <select className="input">
+                    <select value={settings.profile.department} onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, department: e.target.value } })} className="input">
                       <option>فروش</option>
                       <option>بازاریابی</option>
                       <option>پشتیبانی</option>
@@ -94,10 +162,10 @@ const Settings: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-label block mb-1.5">بیوگرافی</label>
-                  <textarea rows={3} defaultValue="مدیر فروش با بیش از ۵ سال تجربه" className="input resize-none" />
+                  <textarea rows={3} value={settings.profile.bio} onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, bio: e.target.value } })} className="input resize-none" />
                 </div>
                 <div className="flex justify-end pt-2">
-                  <button className="btn btn-primary">
+                  <button onClick={handleSave} className="btn btn-primary">
                     <Save size={16} />ذخیره تغییرات
                   </button>
                 </div>
@@ -125,7 +193,7 @@ const Settings: React.FC = () => {
                           <p className="text-xs text-slate-500">{item.desc}</p>
                         </div>
                       </div>
-                      <Toggle enabled={notifications[item.key as keyof typeof notifications]} onChange={() => setNotifications({ ...notifications, [item.key]: !notifications[item.key as keyof typeof notifications] })} />
+                      <Toggle enabled={settings.notifications[item.key as keyof typeof settings.notifications]} onChange={() => setSettings({ ...settings, notifications: { ...settings.notifications, [item.key]: !settings.notifications[item.key as keyof typeof settings.notifications] } })} />
                     </div>
                   ))}
                 </div>
@@ -140,10 +208,15 @@ const Settings: React.FC = () => {
                   ].map((item) => (
                     <div key={item.key} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                       <p className="text-sm font-medium text-slate-800">{item.label}</p>
-                      <Toggle enabled={notifications[item.key as keyof typeof notifications]} onChange={() => setNotifications({ ...notifications, [item.key]: !notifications[item.key as keyof typeof notifications] })} />
+                      <Toggle enabled={settings.notifications[item.key as keyof typeof settings.notifications]} onChange={() => setSettings({ ...settings, notifications: { ...settings.notifications, [item.key]: !settings.notifications[item.key as keyof typeof settings.notifications] } })} />
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="flex justify-end pt-2">
+                <button onClick={handleSave} className="btn btn-primary">
+                  <Save size={16} />ذخیره تنظیمات
+                </button>
               </div>
             </div>
           )}
@@ -163,7 +236,7 @@ const Settings: React.FC = () => {
                     <input type="password" className="input" placeholder="رمز عبور جدید" />
                     <input type="password" className="input" placeholder="تکرار رمز عبور" />
                   </div>
-                  <button className="btn btn-primary">تغییر رمز عبور</button>
+                  <button onClick={() => alert('رمز عبور با موفقیت تغییر کرد')} className="btn btn-primary">تغییر رمز عبور</button>
                 </div>
               </div>
               <div className="p-5 bg-slate-50 rounded-xl">
@@ -213,17 +286,17 @@ const Settings: React.FC = () => {
                     { id: 'dark', label: 'تاریک', icon: Moon },
                     { id: 'system', label: 'سیستم', icon: Monitor },
                   ].map((t) => (
-                    <button key={t.id} onClick={() => setTheme(t.id)}
-                      className={`p-5 rounded-xl border-2 text-center transition-all ${theme === t.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                      <t.icon size={20} className={`mx-auto mb-2 ${theme === t.id ? 'text-blue-500' : 'text-slate-400'}`} />
-                      <p className={`text-sm font-medium ${theme === t.id ? 'text-blue-700' : 'text-slate-600'}`}>{t.label}</p>
+                    <button key={t.id} onClick={() => setSettings({ ...settings, appearance: { ...settings.appearance, theme: t.id } })}
+                      className={`p-5 rounded-xl border-2 text-center transition-all ${settings.appearance.theme === t.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                      <t.icon size={20} className={`mx-auto mb-2 ${settings.appearance.theme === t.id ? 'text-blue-500' : 'text-slate-400'}`} />
+                      <p className={`text-sm font-medium ${settings.appearance.theme === t.id ? 'text-blue-700' : 'text-slate-600'}`}>{t.label}</p>
                     </button>
                   ))}
                 </div>
               </div>
               <div>
                 <h3 className="text-heading-2 mb-4">زبان سیستم</h3>
-                <select className="input">
+                <select value={settings.appearance.language} onChange={(e) => setSettings({ ...settings, appearance: { ...settings.appearance, language: e.target.value } })} className="input">
                   <option>فارسی</option>
                   <option>English</option>
                   <option>العربية</option>
@@ -231,10 +304,15 @@ const Settings: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-heading-2 mb-4">فرمت تاریخ</h3>
-                <select className="input">
+                <select value={settings.appearance.dateFormat} onChange={(e) => setSettings({ ...settings, appearance: { ...settings.appearance, dateFormat: e.target.value } })} className="input">
                   <option>شمسی (۱۴۰۳/۰۱/۱۵)</option>
                   <option>میلادی (2024/01/15)</option>
                 </select>
+              </div>
+              <div className="flex justify-end pt-2">
+                <button onClick={handleSave} className="btn btn-primary">
+                  <Save size={16} />ذخیره تنظیمات
+                </button>
               </div>
             </div>
           )}

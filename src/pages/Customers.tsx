@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Search, Plus, Mail, Phone, Building2, Edit2, Trash2, Eye, X, MapPin, Grid, List, Download, Upload, Star } from 'lucide-react';
 import { mockCustomers } from '../data/mockData';
 import { Customer } from '../types';
@@ -10,9 +10,12 @@ const Customers: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [formData, setFormData] = useState<Partial<Customer>>({ name: '', email: '', phone: '', company: '', position: '', status: 'prospect', address: '', city: '', notes: '', tags: [], source: 'website' });
+  const [importData, setImportData] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredCustomers = customers.filter(c => {
     const matchesSearch = c.name.includes(searchTerm) || c.email.includes(searchTerm) || c.company.includes(searchTerm);
@@ -81,11 +84,87 @@ const Customers: React.FC = () => {
   };
 
   const handleExport = () => {
-    alert('خروجی CSV با موفقیت ایجاد شد!');
+    const headers = ['نام', 'ایمیل', 'تلفن', 'شرکت', 'سمت', 'وضعیت', 'آدرس', 'شهر', 'یادداشت'];
+    const csvContent = [
+      headers.join(','),
+      ...customers.map(c => [
+        c.name,
+        c.email,
+        c.phone,
+        c.company,
+        c.position || '',
+        c.status,
+        c.address,
+        c.city || '',
+        c.notes
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `customers_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const handleImport = () => {
-    alert('فایل CSV با موفقیت وارد شد!');
+  const handleImportClick = () => {
+    setShowImportModal(true);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setImportData(text);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleImportData = () => {
+    if (!importData) {
+      alert('لطفاً یک فایل CSV انتخاب کنید');
+      return;
+    }
+
+    const lines = importData.split('\n').filter(line => line.trim());
+    if (lines.length < 2) {
+      alert('فایل CSV معتبر نیست');
+      return;
+    }
+
+    const newCustomers: Customer[] = lines.slice(1).map((line, index) => {
+      const values = line.split(',');
+      return {
+        id: Date.now().toString() + index,
+        name: values[0] || '',
+        email: values[1] || '',
+        phone: values[2] || '',
+        company: values[3] || '',
+        position: values[4] || '',
+        status: (values[5] as Customer['status']) || 'prospect',
+        address: values[6] || '',
+        city: values[7] || '',
+        createdAt: new Date().toISOString().split('T')[0],
+        lastContact: new Date().toISOString().split('T')[0],
+        notes: values[8] || '',
+        tags: [],
+        source: 'other',
+        lifetimeValue: 0,
+        satisfaction: 0
+      };
+    });
+
+    setCustomers([...newCustomers, ...customers]);
+    setShowImportModal(false);
+    setImportData('');
+    alert(`${newCustomers.length} مشتری با موفقیت وارد شد`);
   };
 
   return (
@@ -97,7 +176,7 @@ const Customers: React.FC = () => {
           <p className="text-body-sm mt-1">{customers.length} مشتری ثبت شده</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleImport} className="btn btn-secondary">
+          <button onClick={handleImportClick} className="btn btn-secondary">
             <Upload size={16} />
             <span className="hidden sm:inline">وارد کردن</span>
           </button>
@@ -307,6 +386,55 @@ const Customers: React.FC = () => {
             <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-200 bg-white">
               <button onClick={() => setShowModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
               <button onClick={handleSaveCustomer} className="btn btn-primary px-4 py-2 text-sm">{editingCustomer ? 'بروزرسانی' : 'ذخیره'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowImportModal(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in bg-white shadow-xl">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-heading-2">وارد کردن مشتریان</h2>
+              <button onClick={() => setShowImportModal(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
+                <Upload size={40} className="mx-auto text-slate-400 mb-3" />
+                <p className="text-sm text-slate-600 mb-2">فایل CSV خود را انتخاب کنید</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn btn-secondary mt-2"
+                >
+                  انتخاب فایل
+                </button>
+              </div>
+              {importData && (
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <p className="text-sm font-medium text-slate-700 mb-2">پیش‌نمایش داده‌ها:</p>
+                  <pre className="text-xs text-slate-600 overflow-auto max-h-40">{importData.substring(0, 500)}...</pre>
+                </div>
+              )}
+              <div className="bg-blue-50 rounded-xl p-4">
+                <p className="text-xs text-blue-700">
+                  <strong>فرمت CSV:</strong> نام,ایمیل,تلفن,شرکت,سمت,وضعیت,آدرس,شهر,یادداشت
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 p-6 border-t border-slate-200 bg-white">
+              <button onClick={() => setShowImportModal(false)} className="btn btn-secondary px-4 py-2 text-sm">انصراف</button>
+              <button onClick={handleImportData} className="btn btn-primary px-4 py-2 text-sm">وارد کردن</button>
             </div>
           </div>
         </div>

@@ -14,6 +14,55 @@ const Reports: React.FC = () => {
   const conversionRate = wonDeals + lostDeals > 0 ? ((wonDeals / (wonDeals + lostDeals)) * 100).toFixed(1) : '0';
   const avgDealSize = mockDeals.length > 0 ? (mockDeals.reduce((sum, d) => sum + d.value, 0) / mockDeals.length / 1000000).toFixed(0) : '0';
 
+  const handleDownloadReport = () => {
+    const reportData = {
+      summary: {
+        totalRevenue: totalRevenue,
+        conversionRate: conversionRate,
+        avgDealSize: avgDealSize,
+        totalCustomers: mockCustomers.length,
+        wonDeals: wonDeals,
+        lostDeals: lostDeals
+      },
+      revenueData: revenueData,
+      teamPerformance: teamPerformance,
+      dealStages: dealStageData,
+      customerSources: customerSourceData,
+      monthlyCustomers: monthlyCustomers
+    };
+
+    const csvContent = [
+      'گزارش عملکرد CRM Pro',
+      `تاریخ: ${new Date().toLocaleDateString('fa-IR')}`,
+      '',
+      'خلاصه عملکرد:',
+      `درآمد کل,${totalRevenue}`,
+      `نرخ تبدیل,${conversionRate}%`,
+      `میانگین معامله,${avgDealSize}M`,
+      `کل مشتریان,${mockCustomers.length}`,
+      `معاملات موفق,${wonDeals}`,
+      `معاملات ناموفق,${lostDeals}`,
+      '',
+      'عملکرد تیم:',
+      'نام,معاملات,درآمد (M),وظایف',
+      ...teamPerformance.map(m => `${m.name},${m.deals},${m.revenue},${m.tasks}`),
+      '',
+      'مراحل معاملات:',
+      'مرحله,تعداد',
+      ...dealStageData.map(d => `${d.name},${d.value}`)
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -28,8 +77,8 @@ const Reports: React.FC = () => {
             <option value="quarter">سه‌ماه اخیر</option>
             <option value="year">امسال</option>
           </select>
-          <button className="btn btn-primary">
-            <Download size={16} /><span className="hidden sm:inline">خروجی</span>
+          <button onClick={handleDownloadReport} className="btn btn-primary">
+            <Download size={16} /><span className="hidden sm:inline">دانلود گزارش</span>
           </button>
         </div>
       </div>
